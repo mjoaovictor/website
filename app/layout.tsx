@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import "katex/dist/katex.min.css";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "./components/footer";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,6 +54,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

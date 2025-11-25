@@ -97,6 +97,7 @@ function createHeading(level: 1 | 2 | 3 | 4 | 5 | 6) {
           href: `#${slug}`,
           key: `link-${slug}`,
           className: "anchor",
+          "aria-label": `link to section ${children}`
         }),
       ],
       children,

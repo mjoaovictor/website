@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 const LINKS = [
   {
     label: "linkedin",
@@ -8,6 +10,13 @@ const LINKS = [
     href: "https://github.com/mjoaovictor",
   },
 ] as const;
+
+export const metadata: Metadata = {
+  description: "Senior Software Analyst & Telecommunications Engineer specializing in 5G and Python automation.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 function ArrowUpRight({ className }: { className?: string }) {
   return (

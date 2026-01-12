@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { ArrowUpRight } from "lucide-react";
 
 const LINKS = [
   {
@@ -11,56 +11,35 @@ const LINKS = [
   },
 ] as const;
 
-export const metadata: Metadata = {
-  description: "Senior Software Analyst & Telecommunications Engineer specializing in 5G and Python automation.",
-  alternates: {
-    canonical: "/",
-  },
-};
-
-function ArrowUpRight({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      aria-hidden="true"
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 export default function Page() {
   return (
     <section className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tighter">João Victor</h1>
+      <h1 className="font-semibold text-2xl tracking-tighter">
+        João Victor
+      </h1>
+
+      <div className="space-y-4 text-neutral-600 leading-relaxed dark:text-neutral-400">
+        <p>
+          I’m a Telecommunications Engineer and Senior Software Analyst at the Eldorado
+          Research Institute. Former 5G instructor at INATEL.
+        </p>
+
+        <p>
+          Focused on 4G/5G, automation, and applied software engineering.
+        </p>
       </div>
 
-      <p className="leading-relaxed">
-        I'm a Telecommunications Engineer and Senior Software Analyst currently
-        working at Eldorado Research Institute. Previously, I was a 5G
-        instructor at INATEL.
-      </p>
-
-      <ul className="flex gap-4 text-neutral-600 dark:text-neutral-300">
+      <ul className="flex gap-4">
         {LINKS.map((link) => (
           <li key={link.label}>
             <a
-              className="flex items-center hover:text-neutral-900 dark:hover:text-white"
+              className="group flex items-center gap-2 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
               rel="noopener noreferrer"
               target="_blank"
               href={link.href}
             >
-              <ArrowUpRight className="h-3 w-3" />
-              <span className="ml-2 h-7">{link.label}</span>
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span className="h-7">{link.label}</span>
             </a>
           </li>
         ))}

@@ -3,25 +3,25 @@
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { AnimatedBackground } from "./animated-background";
+import { AnimatedBackground } from "./animated_background";
 
 const THEMES = [
   {
     label: "Light",
     id: "light",
-    icon: <SunIcon className="h-4 w-4" />,
+    icon: SunIcon,
   },
   {
     label: "Dark",
     id: "dark",
-    icon: <MoonIcon className="h-4 w-4" />,
+    icon: MoonIcon,
   },
   {
     label: "System",
     id: "system",
-    icon: <MonitorIcon className="h-4 w-4" />,
+    icon: MonitorIcon,
   },
-];
+] as const;
 
 function ThemeSwitch() {
   const [mounted, setMounted] = useState(false);
@@ -32,12 +32,12 @@ function ThemeSwitch() {
   }, []);
 
   if (!mounted) {
-    return null;
+    return <div className="h-8 w-[100px]" />;
   }
 
   return (
     <AnimatedBackground
-      className="pointer-events-none rounded-lg bg-zinc-100 dark:bg-zinc-800"
+      className="pointer-events-none rounded-lg bg-zinc-100 dark:bg-zinc-900"
       defaultValue={theme}
       transition={{
         type: "spring",
@@ -49,16 +49,16 @@ function ThemeSwitch() {
         setTheme(id as string);
       }}
     >
-      {THEMES.map((theme) => {
+      {THEMES.map((item) => {
         return (
           <button
-            key={theme.id}
-            data-id={theme.id}
+            key={item.id}
+            data-id={item.id}
             type="button"
-            aria-label={`switch to ${theme.label} theme`}
-            className="inline-flex h-7 w-7 items-center justify-center text-zinc-500 data-[checked=true]:text-zinc-950 dark:text-zinc-400 dark:data-[checked=true]:text-zinc-50"
+            aria-label={`switch to ${item.label} theme`}
+            className="inline-flex h-8 w-8 items-center justify-center text-zinc-600 data-[checked=true]:text-zinc-900 dark:text-zinc-400 dark:data-[checked=true]:text-zinc-100"
           >
-            {theme.icon}
+            <item.icon className="h-4 w-4" />
           </button>
         );
       })}
@@ -68,7 +68,7 @@ function ThemeSwitch() {
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-100 py-4 dark:border-zinc-800">
+    <footer className="border-zinc-100 border-t py-4 dark:border-zinc-900">
       <div className="flex items-center justify-end">
         <ThemeSwitch />
       </div>

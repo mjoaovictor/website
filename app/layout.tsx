@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "./components/navbar";
+import { Analytics } from "@vercel/analytics/next";
 import { cn } from "@/lib/utils";
 import "katex/dist/katex.min.css";
-import { ThemeProvider } from "next-themes";
-import { Footer } from "./components/footer";
-import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ThemeProvider } from "next-themes";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// JSON-LD for SEO authority (E-E-A-T)
+// JSON-LD: Semantic SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -51,10 +51,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://mjoaovictor.dev"),
   title: {
-    default: "mjoaovictor | Telecommunications Engineer",
+    default: "mjoaovictor",
     template: "%s | mjoaovictor",
   },
-  description: "Exploring telecommunications and software engineering.",
+  description: "My personal website built with Next.js and TypeScript.",
   keywords: [
     "software engineer",
     "telecommunications",
@@ -66,10 +66,13 @@ export const metadata: Metadata = {
   creator: "João Victor",
   alternates: {
     canonical: "/",
+    types: {
+      "application/rss+xml": [{ url: "/rss.xml", title: "RSS" }],
+    },
   },
   openGraph: {
-    title: "mjoaovictor | Telecommunications Engineer",
-    description: "Exploring telecommunications and software engineering.",
+    title: "mjoaovictor",
+    description: "My personal website built with Next.js and TypeScript.",
     url: "https://mjoaovictor.dev",
     siteName: "mjoaovictor.dev",
     locale: "en_US",
@@ -77,8 +80,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "mjoaovictor | Telecommunications Engineer",
-    description: "Exploring telecommunications and software engineering.",
+    title: "mjoaovictor",
+    description: "My personal website built with Next.js and TypeScript.",
   },
   robots: {
     index: true,
@@ -102,13 +105,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "bg-background min-h-screen font-sans antialiased",
           geistSans.variable,
           geistMono.variable,
+          "bg-background tracking-tight antialiased",
         )}
       >
+        {/* Semantic Data Injection */}
         <script
           type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: true
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ThemeProvider
@@ -117,18 +122,18 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-4">
+          <div className="mx-auto flex min-h-screen max-w-2xl flex-col p-4">
             <Navbar />
-            <main className="min-w-0 flex-1 py-6">{children}</main>
+            <main className="min-w-0 flex-1 py-6">
+              {children}
+            </main>
             <Footer />
           </div>
         </ThemeProvider>
-        {/* Vercel Analytics (Traffic) */}
+        {/* Vercel Analytics */}
         <Analytics />
-
         {/* Speed Insights (Performance/Core Web Vitals) */}
         <SpeedInsights />
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" />
       </body>
     </html>
   );

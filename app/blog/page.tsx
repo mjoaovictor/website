@@ -1,12 +1,12 @@
-import { BlogPosts } from "../components/posts";
 import type { Metadata } from "next";
+import { BlogPosts } from "@/components/posts";
 
-// JSON-LD for SEO authority (E-E-A-T)
+// JSON-LD: Semantic SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   headline: "Blog by mjoaovictor",
-  description: "Articles exploring telecommunications, software development, and more.",
+  description: "Texts exploring telecommunications, software development, and more.",
   url: "https://mjoaovictor.dev/blog",
   author: {
     "@type": "Person",
@@ -16,33 +16,29 @@ const jsonLd = {
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "Read my thoughts on telecommunications and software development.",
+  description: "Texts exploring telecommunications, software development, and more.",
   alternates: {
-    canonical: "https://mjoaovictor.dev/blog",
+    canonical: "/blog",
   },
   openGraph: {
     title: "Blog | mjoaovictor",
-    description: "Read my thoughts on telecommunications and software development.",
-    url: "https://mjoaovictor.dev/blog",
+    description: "Texts exploring telecommunications, software development, and more.",
+    url: "/blog",
     type: "website",
   },
 };
 
 export default function Page() {
   return (
-    <section>
+    <section className="space-y-8">
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: true
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="mb-8 space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tighter">
-          Blog
-        </h1>
-        <p className="text-neutral-500 dark:text-neutral-400">
-          Read my thoughts on telecommunications and software development.
-        </p>
-      </div>
+      <h1 className="font-semibold text-2xl tracking-tighter">
+        Blog
+      </h1>
 
       <BlogPosts />
     </section>

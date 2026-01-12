@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 const TOOLS = [
   {
@@ -9,7 +9,7 @@ const TOOLS = [
   },
 ] as const;
 
-// JSON-LD for SEO authority (E-E-A-T)
+// JSON-LD: Semantic SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
@@ -26,42 +26,38 @@ export const metadata: Metadata = {
   title: "Tools",
   description: "Useful tools for telecommunications and software development.",
   alternates: {
-    canonical: "https://mjoaovictor.dev/tools"
+    canonical: "/tools"
   },
   openGraph: {
     title: "Tools | mjoaovictor",
     description: "Useful tools for telecommunications and software development.",
-    url: "https://mjoaovictor.dev/tools",
+    url: "/tools",
     type: "website",
   },
 };
 
 export default function Page() {
   return (
-    <section>
+    <section className="space-y-8">
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: true
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="mb-8 space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tighter">
-          Tools
-        </h1>
-        <p className="text-neutral-500 dark:text-neutral-400">
-          Explore utilities for telecommunications and software development.
-        </p>
-      </div>
+      <h1 className="font-semibold text-2xl tracking-tighter">
+        Tools
+      </h1>
 
-      <ul className="list-disc space-y-3 pl-5 text-neutral-600 dark:text-neutral-400">
+      <ul className="list-disc space-y-3 pl-5">
         {TOOLS.map((tool) => (
           <li key={tool.href} className="marker:text-neutral-400">
             <Link
-              className="underline decoration-neutral-300 decoration-1 underline-offset-4 hover:text-neutral-900 hover:decoration-neutral-600 dark:decoration-neutral-700 dark:hover:text-neutral-100 dark:hover:decoration-neutral-400"
               href={tool.href}
+              className="text-neutral-600 hover:text-neutral-900 hover:underline hover:underline-offset-4 dark:text-neutral-400 dark:hover:text-neutral-100"
             >
               {tool.label}
             </Link>
-            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-neutral-600 text-sm dark:text-neutral-400">
               {tool.description}
             </p>
           </li>

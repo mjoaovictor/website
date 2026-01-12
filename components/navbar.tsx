@@ -33,10 +33,10 @@ export function Navbar() {
 							key={path}
 							href={path}
 							className={cn(
-								"flex px-2 py-1 align-middle hover:underline hover:underline-offset-6",
+								"flex px-2 py-1 align-middle hover:underline hover:underline-offset-4",
 								isActive
 									? "text-neutral-900 dark:text-neutral-100"
-									: "text-neutral-500 dark:text-neutral-400",
+									: "text-neutral-600 dark:text-neutral-400",
 							)}
 						>
 							{name}

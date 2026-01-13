@@ -23,13 +23,13 @@ const ibmMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-const _geistSans = Geist({
-  variable: "--font-geist-sans",
+const geistSans = Geist({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const _geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const geistMono = Geist_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -119,8 +119,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          ibmSans.variable,
-          ibmMono.variable,
+          geistSans.variable,
+          geistMono.variable,
           "bg-background font-sans tracking-tight antialiased",
         )}
       >

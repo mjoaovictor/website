@@ -4,42 +4,47 @@ publishedAt: "2025-11-23"
 summary: "An explanation of Frequency Raster in 5G NR, including how NR-ARFCN is calculated."
 ---
 
-In 5G NR, the **Frequency Raster** defines the valid center frequencies for radio transmission. Unlike LTE, which typically used a fixed 100 kHz raster, 5G uses a more flexible system divided into two concepts:
+In 5G NR, the **Frequency Raster** defines the set of permitted center frequencies for RF channels. Unlike LTE's fixed 100 kHz raster, 5G NR utilizes a more flexible grid to accommodate a wider spectrum range.
 
-1.  **Global Frequency Raster:** The fundamental high-resolution grid that maps frequencies to unique numbers (NR-ARFCN).
-2.  **Channel Raster:** The specific subset of that grid defining the allowed center frequencies for a particular band.
+## 1. Global Frequency Raster (NR-ARFCN)
 
-## Global Frequency Raster
-
-To assign a unique number to every possible frequency, 3GPP defines the **NR-ARFCN** (New Radio Absolute Radio Frequency Channel Number).
-
-The calculation depends on the frequency range. [3GPP TS 38.104](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3202) specifies the global frequency raster parameters used to calculate the NR-ARFCN as follows:
+The **NR-ARFCN** (New Radio Absolute Radio Frequency Channel Number) maps every possible frequency to a unique integer. Per **[3GPP TS 38.104](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3202)**, the relationship between the frequency ($F_{\text{REF}}$) and the NR-ARFCN ($N_{\text{REF}}$) is defined by:
 
 $$
-\text{NR-ARFCN} = N_{\text{REF-OFFS}} + \frac{\text{Center Frequency} - F_{\text{REF-OFFS}}}{\Delta F_{\text{Global}}}
+F_{\text{REF}} = F_{\text{REF-OFFS}} + \Delta F_{\text{Global}} (N_{\text{REF}} - N_{\text{REF-OFFS}})
 $$
 
-| Frequency Range | $\Delta F_{\text{Global}}$ | $F_{\text{REF-OFFS}}$ (MHz) | $N_{\text{REF-OFFS}}$ | Range of NR-ARFCN |
+Or, solving for $N_{\text{REF}}$ (NR-ARFCN):
+
+$$
+N_{\text{REF}} = N_{\text{REF-OFFS}} + \frac{F_{\text{REF}} - F_{\text{REF-OFFS}}}{\Delta F_{\text{Global}}}
+$$
+
+### Parameters
+
+| Frequency Range ($F_{\text{REF}}$) | $\Delta F_{\text{Global}}$ | $F_{\text{REF-OFFS}}$ (MHz) | $N_{\text{REF-OFFS}}$ | NR-ARFCN Range |
 | :--- | :--- | :--- | :--- | :--- |
 | 0 — 3 GHz | 5 kHz | 0 | 0 | 0 — 599000 |
 | 3 — 24.25 GHz | 15 kHz | 3000 | 600000 | 600000 — 2016666 |
 | 24.25 — 100 GHz | 60 kHz | 24250.08 | 2016667 | 2016667 — 3279165 |
 
-## Channel Raster
+## 2. Channel Raster
 
-While the global raster defines every *possible* NR-ARFCN, specific bands (like **n28** or **n78**) do not support every single ARFCN. They enforce a coarser grid known as the **Channel Raster**.
+The **Channel Raster** is a band-specific subset of the global grid. While the global grid defines what is *physically possible*, the Channel Raster defines what is *allowed* for a specific operating band (e.g., n78).
 
-### Valid Raster
-A frequency is considered a **valid raster** if it aligns perfectly with the granularity ($\Delta F_{\text{Raster}}$) defined for that specific band.
+For each operational band, 3GPP specifies a $\Delta F_{\text{Raster}}$. This way, if the $\Delta F_{\text{Global}}$ is 5 kHz while the $\Delta F_{\text{Raster}}$ is 100 kHz, the valid NR-ARFCNs will have a step size of 20.
+
+### Raster Validation
+A frequency is considered **valid** for a band if it aligns with the required step size ($\Delta F_{\text{Raster}}$).
 
 $$
-(\text{NR-ARFCN} - \text{Start}_{\text{Grid}}) \pmod {\text{Step}_{\text{Band}}} = 0
+(N_{\text{REF}} - \text{Start}_{\text{Grid}}) \pmod {\text{Step}_{\text{Band}}} = 0
 $$
 
-### Off-Raster
-A frequency is **off-raster** if it corresponds to a valid NR-ARFCN (it exists on the global grid) but does not align with the step required by the band.
+### Off-Raster Scenarios
+An **off-raster** frequency exists on the Global Raster ($N_{\text{REF}}$ is an integer) but does not align with the band-specific step. The UE will not typically scan for carriers on these positions during initial cell search.
 
-> **Example:**
-> If band n1 requires a 100 kHz step:
-> *   **1920.00 MHz** is **valid**.
-> *   **1920.05 MHz** is **off-raster**. Although physically possible on the global grid, you cannot center a carrier there for band n1.
+> **Example: Band n1 ($\Delta F_{\text{Raster}}$ = 100 kHz / Step Size = 20)**
+> *   1920.00 MHz ($N_{\text{REF}} = 384000$): Valid. It aligns with the 100 kHz grid.
+> *   1920.05 MHz ($N_{\text{REF}} = 384010$): Off-Raster. Although it is a valid NR-ARFCN, it cannot be used as a center frequency for band n1.
+> *   The next valid NR-ARFCN for band n1 is $\text{384000 + 20 = 384020 (1920.10 MHz)}$.

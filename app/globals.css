@@ -131,7 +131,7 @@
 }
 
 .prose p {
-  @apply my-4 text-neutral-800 dark:text-neutral-200;
+  @apply my-4 text-neutral-600 leading-relaxed dark:text-neutral-400;
 }
 
 .prose h1 {
@@ -148,6 +148,18 @@
 
 .prose table {
   @apply my-4;
+}
+
+.prose mark {
+  @apply bg-transparent text-inherit px-0.5 box-decoration-clone;
+  background-image: linear-gradient(to bottom, transparent 40%, #67e8f9 40%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.dark .prose mark {
+  background-image: linear-gradient(to bottom, transparent 40%, #0e7490 40%);
+  @apply text-white;
 }
 
 .katex-display {

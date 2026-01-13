@@ -1,11 +1,11 @@
-import Link from "next/link";
 import Image from "next/image";
-import { highlight } from "sugar-high";
-import React, { ComponentProps } from "react";
+import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkMath from "remark-math";
-import remarkGfm from "remark-gfm";
+import React, { ComponentProps } from "react";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import { highlight } from "sugar-high";
 import {
   Table as ShadcnTable,
   TableBody,

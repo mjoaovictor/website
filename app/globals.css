@@ -123,6 +123,8 @@
 
   html {
     @apply scroll-smooth;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
   }
 
   body {

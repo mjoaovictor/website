@@ -10,6 +10,10 @@ const NAV_ITEMS = [
 		name: "home",
 	},
 	{
+		path: "/career",
+		name: "career",
+	},
+	{
 		path: "/blog",
 		name: "blog",
 	},

@@ -37,7 +37,7 @@ const geistMono = Geist_Mono({
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: "João Victor Victor Menino E Silva",
+  name: "João Victor Menino E Silva",
   alternateName: ["João Victor", "mjoaovictor"],
   url: "https://mjoaovictor.dev",
   image: "https://mjoaovictor.dev/opengraph-image",

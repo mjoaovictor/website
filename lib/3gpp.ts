@@ -8,9 +8,12 @@ export type BandMatch = {
   bandName: string; // e.g., "n78"
   duplexMode: "FDD" | "TDD" | "SDL" | "SUL";
   matchedLink: "UL" | "DL" | "UL/DL";
-  frequencyRaster: number;
-  rasterStep: number;
+  frequencyRaster: number | null;
+  rasterStep: number | null;
   isRasterValid: boolean;
+  // false when the band matched by frequency but has no raster data in our tables
+  // (e.g. n263, whose applicable NR-ARFCN depends on channel bandwidth per TS 38.104 Table 5.4.2.3-3).
+  rasterAvailable: boolean;
 };
 
 export function arfcnToFrequency(nRef: number): number | null {
@@ -24,7 +27,7 @@ export function arfcnToFrequency(nRef: number): number | null {
   }
   // range 3: 24250 - 100000+ MHz
   if (nRef >= 2016667 && nRef <= 3279165) {
-    return 24250 + (nRef - 2016667) * 0.06; // 60kHz step
+    return 24250.08 + (nRef - 2016667) * 0.06; // 60kHz step
   }
   return null;
 }
@@ -40,7 +43,7 @@ export function frequencyToArfcn(freqMHz: number): number | null {
   }
   // range 3: 24250 - 100000+ MHz
   if (freqMHz >= 24250 && freqMHz <= 100000) {
-    return Math.round((freqMHz - 24250) / 0.06 + 2016667);
+    return Math.round((freqMHz - 24250.08) / 0.06 + 2016667);
   }
   return null;
 }
@@ -99,15 +102,28 @@ export function getBandsForFrequency(
       link = "UL";
     }
 
-    // find ALL raster configs for this band
+    // find ALL raster configs for this band, keeping only the ones that define a grid for the matched link direction.
     const rasters = ALL_BAND_RASTERS.filter((r) => r.band === def.band);
+    const applicableRasters = rasters.filter(
+      (r) => (link === "UL" ? r.ul : r.dl) !== null,
+    );
 
-    for (const r of rasters) {
-      // use the appropriate grid based on link direction
-      const grid = link === "UL" ? r.ul : r.dl;
+    if (applicableRasters.length === 0) {
+      // band matches the frequency but we have no raster data for it.
+      matches.push({
+        bandName: def.band,
+        duplexMode: def.duplexMode,
+        matchedLink: link,
+        frequencyRaster: null,
+        rasterStep: null,
+        isRasterValid: false,
+        rasterAvailable: false,
+      });
+      continue;
+    }
 
-      if (!grid) continue;
-
+    for (const r of applicableRasters) {
+      const grid = (link === "UL" ? r.ul : r.dl) as [number, number, number];
       const [start, step, end] = grid;
       let isValid = false;
 
@@ -125,6 +141,7 @@ export function getBandsForFrequency(
         frequencyRaster: r.frequencyRaster,
         rasterStep: step,
         isRasterValid: isValid,
+        rasterAvailable: true,
       });
     }
   }
@@ -139,7 +156,7 @@ export function getBandsForFrequency(
     const numB = parseInt(b.bandName.replace(/\D/g, "")) || 0;
 
     // secondary sort: prefer smaller raster step (15kHz before 30kHz)
-    if (numA === numB) return a.frequencyRaster - b.frequencyRaster;
+    if (numA === numB) return (a.frequencyRaster ?? 0) - (b.frequencyRaster ?? 0);
     return numA - numB;
   });
 }

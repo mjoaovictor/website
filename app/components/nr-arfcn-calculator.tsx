@@ -135,10 +135,14 @@ export function NrArfcnCalculator() {
                           </Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono text-sm">{m.frequencyRaster}</TableCell>
-                      <TableCell className="font-mono text-sm">{m.rasterStep}</TableCell>
+                      <TableCell className="font-mono text-sm">{m.frequencyRaster ?? "—"}</TableCell>
+                      <TableCell className="font-mono text-sm">{m.rasterStep ?? "—"}</TableCell>
                       <TableCell>
-                        {m.isRasterValid ? (
+                        {!m.rasterAvailable ? (
+                          <span className="text-xs text-neutral-400">
+                            Raster data not available.
+                          </span>
+                        ) : m.isRasterValid ? (
                           <Badge className="border-emerald-200 bg-emerald-100 text-emerald-700 shadow-none hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-400">
                             Valid Raster
                           </Badge>

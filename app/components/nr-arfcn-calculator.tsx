@@ -30,10 +30,15 @@ export function NrArfcnCalculator() {
   const [inputMode, setInputMode] = useState<"arfcn" | "freq">("arfcn");
   const [rawValue, setRawValue] = useState("");
 
-  const { arfcnStr, freqStr, matches } = useMemo(() => {
+  const { arfcnStr, freqStr, matches, error } = useMemo(() => {
     const val = Number(rawValue);
     if (!rawValue || isNaN(val)) {
-      return { arfcnStr: inputMode === "arfcn" ? rawValue : "", freqStr: inputMode === "freq" ? rawValue : "", matches: [] };
+      return {
+        arfcnStr: inputMode === "arfcn" ? rawValue : "",
+        freqStr: inputMode === "freq" ? rawValue : "",
+        matches: [],
+        error: rawValue ? "Enter a valid number." : null,
+      };
     }
 
     let arfcn: number | null = null;
@@ -42,18 +47,35 @@ export function NrArfcnCalculator() {
     if (inputMode === "arfcn") {
       arfcn = val;
       freq = arfcnToFrequency(arfcn);
+      if (freq === null) {
+        return {
+          arfcnStr: rawValue,
+          freqStr: "",
+          matches: [],
+          error: "NR-ARFCN out of valid range (0 to 3,279,165).",
+        };
+      }
     } else {
       freq = val;
       arfcn = frequencyToArfcn(freq);
+      if (arfcn === null) {
+        return {
+          arfcnStr: "",
+          freqStr: rawValue,
+          matches: [],
+          error: "Frequency out of valid range (0 to 100,000 MHz).",
+        };
+      }
     }
 
     // get bands based on the calculated frequency and (optional) arfcn
-    const foundMatches = freq !== null ? getBandsForFrequency(freq, arfcn ?? undefined) : [];
+    const foundMatches = getBandsForFrequency(freq, arfcn ?? undefined);
 
     return {
       arfcnStr: inputMode === "arfcn" ? rawValue : (arfcn?.toString() ?? ""),
       freqStr: inputMode === "freq" ? rawValue : (freq?.toFixed(2) ?? ""),
-      matches: foundMatches
+      matches: foundMatches,
+      error: null,
     };
   }, [inputMode, rawValue]);
 
@@ -69,12 +91,13 @@ export function NrArfcnCalculator() {
               min="0"
               placeholder="e.g. 620000"
               value={arfcnStr}
+              aria-invalid={inputMode === "arfcn" && !!error}
               onChange={(e) => {
                 setInputMode("arfcn");
                 setRawValue(e.target.value);
               }}
             />
-            <p className="text-xs tracking-wider text-neutral-500 dark:text-neutral-400">
+            <p className="text-neutral-500 text-xs tracking-wider dark:text-neutral-400">
               Valid Range: 0 to 3,279,165
             </p>
           </div>
@@ -87,6 +110,7 @@ export function NrArfcnCalculator() {
               min="0"
               placeholder="e.g. 3300"
               value={freqStr}
+              aria-invalid={inputMode === "freq" && !!error}
               onChange={(e) => {
                 setInputMode("freq");
                 setRawValue(e.target.value);
@@ -95,11 +119,17 @@ export function NrArfcnCalculator() {
           </div>
         </div>
 
+        {error && (
+          <p className="mt-3 text-red-600 text-sm dark:text-red-400" role="alert">
+            {error}
+          </p>
+        )}
+
         {/* table section */}
         <div className="mt-6 space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <h3 className="font-medium">Bands</h3>
-            <span className="text-xs tracking-wider text-neutral-500 dark:text-neutral-400">
+            <span className="text-neutral-500 text-xs tracking-wider dark:text-neutral-400">
               Found {matches.length} matching items.
             </span>
           </div>
@@ -111,8 +141,8 @@ export function NrArfcnCalculator() {
                   <TableRow>
                     <TableHead>Band</TableHead>
                     <TableHead>Duplex Mode</TableHead>
-                    <TableHead>ΔF Raster <span className="text-xs text-neutral-400">(kHz)</span></TableHead>
-                    <TableHead>Step <span className="text-xs text-neutral-400">(Nref)</span></TableHead>
+                    <TableHead>ΔF Raster <span className="text-neutral-400 text-xs">(kHz)</span></TableHead>
+                    <TableHead>Step <span className="text-neutral-400 text-xs">(Nref)</span></TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -139,7 +169,7 @@ export function NrArfcnCalculator() {
                       <TableCell className="font-mono text-sm">{m.rasterStep ?? "—"}</TableCell>
                       <TableCell>
                         {!m.rasterAvailable ? (
-                          <span className="text-xs text-neutral-400">
+                          <span className="text-neutral-400 text-xs">
                             Raster data not available.
                           </span>
                         ) : m.isRasterValid ? (
@@ -147,7 +177,7 @@ export function NrArfcnCalculator() {
                             Valid Raster
                           </Badge>
                         ) : (
-                          <span className="text-xs text-neutral-400">
+                          <span className="text-neutral-400 text-xs">
                             Off-Raster
                           </span>
                         )}
@@ -158,8 +188,8 @@ export function NrArfcnCalculator() {
               </Table>
             </div>
           ) : (
-            <div className="flex h-24 flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-transparent">
-              <p className="text-sm text-neutral-500">
+            <div className="flex h-24 flex-col items-center justify-center rounded-xl border border-neutral-200 border-dashed bg-neutral-50/50 dark:border-neutral-800 dark:bg-transparent">
+              <p className="text-neutral-500 text-sm">
                 {freqStr
                   ? "No matching bands found."
                   : "Enter value to see bands."}

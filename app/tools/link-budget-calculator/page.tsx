@@ -47,7 +47,6 @@ export default function Page() {
 		<section>
 			<script
 				type="application/ld+json"
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: true
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
 			/>
 			<div className="mb-8 space-y-2">

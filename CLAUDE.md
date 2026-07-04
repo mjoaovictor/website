@@ -14,7 +14,6 @@ npm run build    # production build
 npm run start    # run production build
 npm run lint     # eslint
 npx tsc --noEmit # type-check (no dedicated script; project uses strict TS)
-npx biome check . --write   # format/lint/organize-imports via Biome (see biome.json)
 ```
 
 There is no test suite in this repo — do not invent test commands.
@@ -29,6 +28,5 @@ There is no test suite in this repo — do not invent test commands.
 
 ## Conventions
 
-- Formatting/linting is enforced by **Biome** (`biome.json`), not just ESLint: double quotes, auto-organized imports (`assist.actions.source.organizeImports`), and `useSortedClasses` (Tailwind class order) as an error-level rule. Run Biome before considering a change done.
 - Path alias `@/*` maps to the repo root (`tsconfig.json`), matching the shadcn aliases (`@/components`, `@/lib`, `@/components/ui`, etc.).
 - `next.config.ts` is currently minimal/default — don't assume custom webpack/build behavior beyond what's written there.

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { NrArfcnCalculator } from "@/app/components/nr-arfcn-calculator";
 
 const UPDATES = [
@@ -55,10 +55,11 @@ export default function Page() {
     <section>
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: true
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="mb-8 space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tighter">
+        <h1 className="font-semibold text-2xl tracking-tighter">
           5G NR-ARFCN Calculator
         </h1>
         <p className="text-neutral-500 dark:text-neutral-400">
@@ -70,15 +71,15 @@ export default function Page() {
       <div className="mt-4 text-sm">
         <Link
           href="/blog/frequency-raster"
-          className="text-neutral-600 underline decoration-neutral-300 decoration-1 underline-offset-4 hover:text-neutral-900 hover:decoration-neutral-600 dark:text-neutral-400 dark:decoration-neutral-700 dark:hover:text-neutral-100 dark:hover:decoration-neutral-400"
+          className="text-neutral-600 underline decoration-1 decoration-neutral-300 underline-offset-4 hover:text-neutral-900 hover:decoration-neutral-600 dark:text-neutral-400 dark:decoration-neutral-700 dark:hover:text-neutral-100 dark:hover:decoration-neutral-400"
         >
           How does the calculation work?
         </Link>
       </div>
 
-      <div className="mt-12 space-y-2 border-t border-neutral-100 pt-6 dark:border-neutral-800">
-        <h2 className="text-sm font-medium">Updates</h2>
-        <ul className="space-y-2 text-sm text-neutral-500 dark:text-neutral-400">
+      <div className="mt-12 space-y-2 border-neutral-100 border-t pt-6 dark:border-neutral-800">
+        <h2 className="font-medium text-sm">Updates</h2>
+        <ul className="space-y-2 text-neutral-500 text-sm dark:text-neutral-400">
           {UPDATES.map((update) => (
             <li key={update.date} className="flex items-start gap-3">
               <span className="mt-0.5 w-24 shrink-0 font-mono text-neutral-400">

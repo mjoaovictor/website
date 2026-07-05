@@ -27,7 +27,10 @@ const jsonLd = {
       priceCurrency: "USD",
     },
     description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
+    url: "https://mjoaovictor.dev/tools/5g-nr-arfcn-calculator",
   };
+
+const ogImage = `/og?title=${encodeURIComponent("5G NR-ARFCN Calculator")}`;
 
 export const metadata: Metadata = {
   title: "5G NR-ARFCN Calculator",
@@ -47,6 +50,14 @@ export const metadata: Metadata = {
     title: "5G NR-ARFCN Calculator",
     description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
     url: "https://mjoaovictor.dev/tools/5g-nr-arfcn-calculator",
+    type: "website",
+    images: [{ url: ogImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "5G NR-ARFCN Calculator",
+    description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
+    images: [ogImage],
   },
 };
 

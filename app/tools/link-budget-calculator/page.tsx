@@ -27,7 +27,10 @@ const jsonLd = {
 		priceCurrency: "USD",
 	},
 	description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
+	url: "https://mjoaovictor.dev/tools/link-budget-calculator",
 };
+
+const ogImage = `/og?title=${encodeURIComponent("5G Link Budget Calculator")}`;
 
 export const metadata: Metadata = {
 	title: "5G Link Budget Calculator",
@@ -47,6 +50,14 @@ export const metadata: Metadata = {
 		title: "5G Link Budget Calculator",
 		description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
 		url: "https://mjoaovictor.dev/tools/link-budget-calculator",
+		type: "website",
+		images: [{ url: ogImage }],
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "5G Link Budget Calculator",
+		description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
+		images: [ogImage],
 	},
 };
 

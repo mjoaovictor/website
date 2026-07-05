@@ -164,6 +164,18 @@
   @apply text-white;
 }
 
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+.dark .prose .katex-display {
+  scrollbar-color: var(--color-neutral-700) transparent;
+}
+
 .katex-display {
   @apply my-8! mx-0!;
 }

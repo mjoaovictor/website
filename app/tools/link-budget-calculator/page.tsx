@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LinkBudgetCalculator } from "@/app/components/link-budget-calculator";
+
+const UPDATES = [
+  {
+    date: "2026-07-05",
+    description: "Initial Release.",
+  },
+] as const;
 
 // JSON-LD for SEO authority (E-E-A-T)
 const jsonLd = {
@@ -58,6 +66,29 @@ export default function Page() {
 				</p>
 			</div>
 			<LinkBudgetCalculator />
+
+			<div className="mt-4 text-sm">
+				<Link
+					href="/blog/5g-link-budget"
+					className="text-neutral-600 underline decoration-1 decoration-neutral-300 underline-offset-4 hover:text-neutral-900 hover:decoration-neutral-600 dark:text-neutral-400 dark:decoration-neutral-700 dark:hover:text-neutral-100 dark:hover:decoration-neutral-400"
+				>
+					How does the calculation work?
+				</Link>
+			</div>
+
+			<div className="mt-12 space-y-2 border-neutral-100 border-t pt-6 dark:border-neutral-800">
+			<h2 className="font-medium text-sm">Updates</h2>
+			<ul className="space-y-2 text-neutral-500 text-sm dark:text-neutral-400">
+			{UPDATES.map((update) => (
+				<li key={update.date} className="flex items-start gap-3">
+				<span className="mt-0.5 w-24 shrink-0 font-mono text-neutral-400">
+					{update.date}
+				</span>
+				<span>{update.description}</span>
+				</li>
+			))}
+			</ul>
+		</div>
 		</section>
 	);
 }

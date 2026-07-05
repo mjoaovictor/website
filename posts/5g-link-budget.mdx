@@ -1,0 +1,203 @@
+---
+title: "5G Link Budget"
+publishedAt: "2026-07-05"
+summary: "How a 5G NR link budget works?"
+---
+
+A link budget answers one question: **does the signal that leaves the transmitter arrive at the receiver with enough power to be decoded?** It is an accounting exercise: add up every gain and subtract every loss between the two antennas. What remains is the path loss the radio link can afford. Feed that number into a propagation model, and you get the maximum cell range.
+
+This post walks through the calculation exactly as implemented in my [5G Link Budget Calculator](/tools/link-budget-calculator), including the 3GPP TR 38.901 propagation formulas it uses.
+
+In one line, the entire budget is:
+
+$$
+\text{MAPL} = \underbrace{P_{\text{TX}} - L_{\text{TX}} + G_{\text{TX}}}_{\text{EIRP}} + G_{\text{RX}} - L_{\text{RX}} - \underbrace{\left(NF + \left(-174 + 10\log_{10}(B)\right) + \text{SINR}_{\text{REQ}}\right)}_{\text{Receiver Sensitivity (S) }} - M
+$$
+
+where $P_{\text{TX}}$ is the Transmit Power (dBm), $L_{\text{TX}}$/$L_{\text{RX}}$ are the Cable Losses (dB), $G_{\text{TX}}$/$G_{\text{RX}}$ are the Antenna Gains (dBi), $NF$ is the Receiver Noise Figure (dB), $B$ is the channel bandwidth (Hz), $\text{SINR}_{\text{REQ}}$ is the required cell-edge SINR (dB).
+
+The variable $M$ lumps additional margins (dB) like slow fading, penetration, foliage, body block, and rain. In 5G deployments (especially mmWave), these margins are the most volatile elements and dictate whether a link fails in the real world.
+
+The result is the **MAPL (Maximum Allowable Path Loss)**: the absolute limit your signal can degrade before the link dies. The sections below unpack each group of terms.
+
+## 1. The Power Ledger
+
+### EIRP
+
+On the transmit side, everything is condensed into the **EIRP** (Effective Isotropic Radiated Power). This is the conducted power, minus what the feeder eats, plus what the antenna focuses:
+
+$$
+\text{EIRP} = P_{\text{TX}} - L_{\text{cable}} + G_{\text{TX}}
+$$
+
+### Thermal Noise
+
+On the receive side, the floor is dictated by physics. At the reference temperature $T_0 = 290\,\text{K}$, thermal noise density is $-174\,\text{dBm/Hz}$. For a channel of bandwidth $B$ (Hz):
+
+$$
+N = -174 + 10\log_{10}(B)
+$$
+
+This is why bandwidth is not free. Going from 20 MHz to 100 MHz raises the noise floor by $10\log_{10}(5) \approx 7\,\text{dB}$. Your link budget must pay for it.
+
+### Receiver Sensitivity
+
+The receiver requires the signal to sit a specific margin above that noise floor. The **required SINR** depends on the modulation and coding scheme (MCS) targeted at the cell edge (a negative SINR is realistic here). Furthermore, the receiver's own hardware **noise figure** ($NF$) degrades this floor:
+
+$$
+S = NF + N + \text{SINR}_{\text{REQ}}
+$$
+
+### MAPL
+
+The **Maximum Allowable Path Loss** is what remains after the receive antenna gain, receiver losses, and any additional margins ($M$) are settled:
+
+$$
+\text{MAPL} = \text{EIRP} + G_{\text{RX}} - L_{\text{RX}} - S - M
+$$
+
+**Note**: The link budget is directional. A macro Base Station (BS) transmits at ~49 dBm through a 17 dBi antenna gain; the User Equipment (UE) answers with 23 dBm and roughly 0 dBi antenna gain. The downlink and uplink budgets are asymmetrical, and the uplink is usually the limiting one. The calculator computes whichever direction you select, swapping the transmitter and receiver roles accordingly.
+
+## 2. From MAPL To Distance: 3GPP TR 38.901
+
+A MAPL in dB is a useless metric without a model translating it to physical distance. [3GPP TR 38.901](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3173) (Table 7.4.1-1) defines the reference models for 0.5–100 GHz. Two distance conventions dictate the math:
+
+- $d_{\text{2D}}$: Horizontal distance between BS and UT.
+- $d_{\text{3D}}$: Slant distance, $d_{\text{3D}} = \sqrt{d_{\text{2D}}^2 + (h_{\text{BS}} - h_{\text{UT}})^2}$.
+
+### Free Space (FSPL)
+
+The idealized reference — no ground, no clutter, just spherical spreading. With $f$ in MHz and $d$ in meters:
+
+$$
+\text{FSPL} = 20\log_{10}(d) + 20\log_{10}(f) - 27.55
+$$
+
+FSPL is not a deployment model. It is the absolute lower bound every other curve is measured against.
+
+> **LOS vs. NLOS.** Line of Sight (LOS) means an unobstructed straight path between BS and UT; Non-Line of Sight (NLOS) means that path is blocked, and the signal reaches the receiver only through reflection, diffraction, or scattering. 3GPP TR 38.901 fits a separate curve to each condition because they behave differently, so every scenario below comes as a LOS/NLOS pair. Every NLOS formula is defined as $\max(\text{PL}_{\text{LOS}}, \text{PL}'_{\text{NLOS}})$, which guarantees it never predicts less loss than the LOS baseline at the same point.
+
+_In all formulas below, $f_c$ is in GHz and distances are in meters._
+
+### Urban Macro (UMa)
+
+LOS uses a **dual-slope** model. Below the breakpoint distance the loss grows at ~22 dB/decade. Beyond it, ground-reflection interference steepens the slope to 40 dB/decade:
+
+$$
+\text{PL}_{\text{UMa-LOS}} =
+\begin{cases}
+28.0 + 22\log_{10}(d_{\text{3D}}) + 20\log_{10}(f_c), & 10 \le d_{\text{2D}} \le d'_{\text{BP}} \\
+28.0 + 40\log_{10}(d_{\text{3D}}) + 20\log_{10}(f_c) - 9\log_{10}\left((d'_{\text{BP}})^2 + (h_{\text{BS}} - h_{\text{UT}})^2\right), & d'_{\text{BP}} \le d_{\text{2D}} \le 5\,\text{km}
+\end{cases}
+$$
+
+The breakpoint utilizes *effective* antenna heights ($h' = h - h_E$, with environment height $h_E = 1\,\text{m}$ as the default):
+
+$$
+d'_{\text{BP}} = \frac{4\, h'_{\text{BS}}\, h'_{\text{UT}}\, f_c}{c}
+$$
+
+NLOS is the maximum of the LOS loss and an empirical NLOS expression. The $\max$ function guarantees NLOS never predicts *less* loss than LOS at the same point:
+
+$$
+\text{PL}_{\text{UMa-NLOS}} = \max\left(\text{PL}_{\text{UMa-LOS}},\ 13.54 + 39.08\log_{10}(d_{\text{3D}}) + 20\log_{10}(f_c) - 0.6(h_{\text{UT}} - 1.5)\right)
+$$
+
+### Urban Micro (UMi — Street Canyon)
+
+Same structure, different coefficients tailored for lower, below-rooftop antennas:
+
+$$
+\text{PL}_{\text{UMi-LOS}} =
+\begin{cases}
+32.4 + 21\log_{10}(d_{\text{3D}}) + 20\log_{10}(f_c), & 10 \le d_{\text{2D}} \le d'_{\text{BP}} \\
+32.4 + 40\log_{10}(d_{\text{3D}}) + 20\log_{10}(f_c) - 9.5\log_{10}\left((d'_{\text{BP}})^2 + (h_{\text{BS}} - h_{\text{UT}})^2\right), & d'_{\text{BP}} \le d_{\text{2D}} \le 5\,\text{km}
+\end{cases}
+$$
+
+$$
+\text{PL}_{\text{UMi-NLOS}} = \max\left(\text{PL}_{\text{UMi-LOS}},\ 22.4 + 35.3\log_{10}(d_{\text{3D}}) + 21.3\log_{10}(f_c) - 0.3(h_{\text{UT}} - 1.5)\right)
+$$
+
+### Rural Macro (RMa)
+
+RMa LOS is also dual-slope, but the initial segment factors in the average building height $h$ (default 5 m):
+
+$$
+\text{PL}_1 = 20\log_{10}\left(\frac{40\pi\, d_{\text{3D}}\, f_c}{3}\right) + \min(0.03 h^{1.72}, 10)\log_{10}(d_{\text{3D}}) - \min(0.044 h^{1.72}, 14.77) + 0.002\log_{10}(h)\, d_{\text{3D}}
+$$
+
+Beyond the breakpoint $d_{\text{BP}} = 2\pi h_{\text{BS}} h_{\text{UT}} f_c / c$, the loss scales from $\text{PL}_1(d_{\text{BP}})$ at 40 dB/decade. The NLOS branch follows $\max(\text{PL}_{\text{LOS}}, \text{PL}'_{\text{NLOS}})$ relying on an extensive empirical expression involving street width $W$ (default 20 m), $h$, and both antenna heights:
+
+$$
+\begin{aligned}
+\text{PL}'_{\text{RMa-NLOS}} = {} & 161.04 - 7.1\log_{10}(W) + 7.5\log_{10}(h) - \left(24.37 - 3.7\left(\tfrac{h}{h_{\text{BS}}}\right)^2\right)\log_{10}(h_{\text{BS}}) \\
+& + \left(43.42 - 3.1\log_{10}(h_{\text{BS}})\right)\left(\log_{10}(d_{\text{3D}}) - 3\right) + 20\log_{10}(f_c) - \left(3.2\left(\log_{10}(11.75\, h_{\text{UT}})\right)^2 - 4.97\right)
+\end{aligned}
+$$
+
+### Indoor Hotspot (InH — Office)
+
+Indoors, the breakpoint vanishes. Expect a single slope, strictly bounded in 3D distance:
+
+$$
+\text{PL}_{\text{InH-LOS}} = 32.4 + 17.3\log_{10}(d_{\text{3D}}) + 20\log_{10}(f_c)
+$$
+
+$$
+\text{PL}_{\text{InH-NLOS}} = \max\left(\text{PL}_{\text{InH-LOS}},\ 17.3 + 38.3\log_{10}(d_{\text{3D}}) + 24.9\log_{10}(f_c)\right)
+$$
+
+## 3. Respecting Model Boundaries
+
+Every 3GPP TR 38.901 formula is an empirical fit. The spec dictates exactly where that fit is valid. Step outside these bounds, and you are guessing, not engineering.
+
+| Scenario | Frequency | $h_{\text{BS}}$ | $h_{\text{UT}}$ | Distance validity |
+| :--- | :--- | :--- | :--- | :--- |
+| UMa | 0.5–100 GHz | 25 m | 1.5–22.5 m | 10 m ≤ $d_{\text{2D}}$ ≤ 5 km |
+| UMi | 0.5–100 GHz | 10 m | 1.5–22.5 m | 10 m ≤ $d_{\text{2D}}$ ≤ 5 km |
+| RMa | 0.5–30 GHz | 10–150 m | 1–10 m | 10 m ≤ $d_{\text{2D}}$ ≤ 10 km (LOS) / 5 km (NLOS) |
+| InH | 0.5–100 GHz | — | — | 1 m ≤ $d_{\text{3D}}$ ≤ 150 m |
+
+**Notes**: RMa's range formally extends to 30 GHz, but above 7 GHz, it relies on a single 24 GHz measurement campaign. Furthermore, InH defines no antenna-height applicability.
+
+The calculator respects these boundaries instead of silently extrapolating:
+
+- Path loss increases monotonically with distance. The maximum range is found by **bisection inside the validity window**.
+- If the budget is not exhausted at the window's ceiling, the result is reported as **"> limit"**. The true range exceeds the model's reach, and the model cannot say by how much.
+- If your frequency or antenna heights fall outside the applicability column, the result is marked as an **extrapolation**, not a calibrated prediction.
+
+## 4. Example
+
+Scenario: Downlink, band n78 (3.5 GHz), 100 MHz channel. A macro BS (49 dBm, 17 dBi, 2 dB feeder, 25 m) transmitting to a handheld UE (0 dBi, NF 7 dB, cell-edge SINR −6 dB, 1.5 m), with a 3 dB additional margin:
+
+$$
+\text{EIRP} = 49 - 2 + 17 = 64\ \text{dBm}
+$$
+
+$$
+N = -174 + 10\log_{10}(100 \times 10^6) = -94\ \text{dBm}
+$$
+
+$$
+S = 7 + (-94) + (-6) = -93\ \text{dBm}
+$$
+
+$$
+\text{MAPL} = 64 + 0 - 0 - (-93) - 3 = 154\ \text{dB}
+$$
+
+Feeding 154 dB into the propagation models:
+
+| Model | Max range |
+| :--- | :--- |
+| UMa NLOS | ≈ 2.07 km |
+| UMi NLOS | ≈ 2.51 km |
+| RMa NLOS | ≈ 3.24 km |
+| UMa / UMi LOS | > 5 km (beyond model validity) |
+| RMa LOS | > 10 km (beyond model validity) |
+| FSPL | ≈ 342 km |
+
+The data tells the story. The NLOS models — the ones you actually dimension a network with — terminate in the 2–3 km range typical of mid-band macro cells. The LOS curves run out of validity before they run out of budget. And free space predicts a staggering 342 km, which is exactly why FSPL belongs on the chart as a reference line and nowhere near a coverage plan.
+
+Try your own numbers in the [5G Link Budget Calculator](/tools/link-budget-calculator). It plots every model against distance, marks the MAPL crossing, and flags any variable that breaks 3GPP applicability ranges.

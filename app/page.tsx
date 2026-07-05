@@ -17,6 +17,10 @@ const TOOLS = [
     label: "5G NR-ARFCN Calculator",
     href: "/tools/5g-nr-arfcn-calculator",
   },
+  {
+    label: "5G Link Budget Calculator",
+    href: "/tools/link-budget-calculator",
+  },
 ] as const;
 
 export default function Page() {

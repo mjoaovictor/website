@@ -15,19 +15,52 @@ export type PropagationScenario =
 const RMA_AVG_BUILDING_HEIGHT = 5;  // h, 3GPP default
 const RMA_STREET_WIDTH = 20;  // W, 3GPP default
 
-// 3GPP TR 38.901 Table 7.4.1-1 validity ranges.
-// UMa/UMi/RMa are bounded in 2D distance; InH in 3D distance.
+type Bounds = { min: number; max: number };
+
+// 3GPP TR 38.901 (V19.2.0) Table 7.4.1-1 limits per scenario.
 // FSPL has no entry — it's an idealized no-obstruction reference, not a calibrated deployment model, so it's intentionally left unclamped.
-const VALIDITY_RANGES: Record<Exclude<PropagationScenario, "FSPL">, { metric: "d2D" | "d3D"; minMeters: number; maxMeters: number }> = {
-	"UMa-LOS": { metric: "d2D", minMeters: 10, maxMeters: 5000 },
-	"UMa-NLOS": { metric: "d2D", minMeters: 10, maxMeters: 5000 },
-	"UMi-LOS": { metric: "d2D", minMeters: 10, maxMeters: 5000 },
-	"UMi-NLOS": { metric: "d2D", minMeters: 10, maxMeters: 5000 },
-	"RMa-LOS": { metric: "d2D", minMeters: 10, maxMeters: 10000 },
-	"RMa-NLOS": { metric: "d2D", minMeters: 10, maxMeters: 5000 },
-	"InH-LOS": { metric: "d3D", minMeters: 1, maxMeters: 150 },
-	"InH-NLOS": { metric: "d3D", minMeters: 1, maxMeters: 150 },
+const SCENARIO_LIMITS: Record<Exclude<PropagationScenario, "FSPL">, {
+	distanceMetric: "d2D" | "d3D";
+	distance: Bounds;
+	freqGHz: Bounds;
+	hUT?: Bounds;
+	hBS?: Bounds;
+}> = {
+	"UMa-LOS": { distanceMetric: "d2D", distance: { min: 10, max: 5000 }, freqGHz: { min: 0.5, max: 100 }, hUT: { min: 1.5, max: 22.5 }, hBS: { min: 25, max: 25 } },
+	"UMa-NLOS": { distanceMetric: "d2D", distance: { min: 10, max: 5000 }, freqGHz: { min: 0.5, max: 100 }, hUT: { min: 1.5, max: 22.5 }, hBS: { min: 25, max: 25 } },
+	"UMi-LOS": { distanceMetric: "d2D", distance: { min: 10, max: 5000 }, freqGHz: { min: 0.5, max: 100 }, hUT: { min: 1.5, max: 22.5 }, hBS: { min: 10, max: 10 } },
+	"UMi-NLOS": { distanceMetric: "d2D", distance: { min: 10, max: 5000 }, freqGHz: { min: 0.5, max: 100 }, hUT: { min: 1.5, max: 22.5 }, hBS: { min: 10, max: 10 } },
+	"RMa-LOS": { distanceMetric: "d2D", distance: { min: 10, max: 10000 }, freqGHz: { min: 0.5, max: 30 }, hUT: { min: 1, max: 10 }, hBS: { min: 10, max: 150 } },
+	"RMa-NLOS": { distanceMetric: "d2D", distance: { min: 10, max: 5000 }, freqGHz: { min: 0.5, max: 30 }, hUT: { min: 1, max: 10 }, hBS: { min: 10, max: 150 } },
+	"InH-LOS": { distanceMetric: "d3D", distance: { min: 1, max: 150 }, freqGHz: { min: 0.5, max: 100 } },
+	"InH-NLOS": { distanceMetric: "d3D", distance: { min: 1, max: 150 }, freqGHz: { min: 0.5, max: 100 } },
 };
+
+function inRange(value: number, range?: Bounds): boolean {
+	return range === undefined || (value >= range.min && value <= range.max);
+}
+
+/**
+ * Whether frequency and antenna heights are inside the scenario's TR 38.901 applicability range.
+ * FSPL is an idealized reference with no such range.
+ */
+export function isApplicable(
+	scenario: PropagationScenario,
+	freqMHz: number,
+	hBS: number,
+	hUT: number,
+): boolean {
+	if (scenario === "FSPL") {
+		return true;
+	}
+
+	const limits = SCENARIO_LIMITS[scenario];
+	return (
+		inRange(freqMHz / 1000, limits.freqGHz) &&
+		inRange(hUT, limits.hUT) &&
+		inRange(hBS, limits.hBS)
+	);
+}
 
 function d3DFromD2D(
 	d2D: number,
@@ -86,12 +119,12 @@ export function isWithinValidity(
 	hUT: number,
 ): boolean {
 	if (scenario === "FSPL") {
-    return true;
-  }
+		return true;
+	}
 
-	const range = VALIDITY_RANGES[scenario];
-	const value = range.metric === "d2D" ? d2DMeters : d3DFromD2D(d2DMeters, hBS, hUT);
-	return value >= range.minMeters && value <= range.maxMeters;
+	const { distanceMetric, distance } = SCENARIO_LIMITS[scenario];
+	const value = distanceMetric === "d2D" ? d2DMeters : d3DFromD2D(d2DMeters, hBS, hUT);
+	return inRange(value, distance);
 }
 
 /**
@@ -203,8 +236,13 @@ export function pathLossDb(
 	}
 }
 
+export type MaxRangeResult =
+	| { kind: "solved"; d2DMeters: number }
+	| { kind: "beyond-validity"; limitMeters: number }
+	| { kind: "unreachable" };
+
 /**
- *  Calculate max 2D distance (m) at which path loss reaches the given budget (MAPL).
+ * Calculate max 2D distance (m) at which path loss reaches the given budget (MAPL).
  */
 export function solveMaxRange2D(
 	scenario: PropagationScenario,
@@ -212,37 +250,42 @@ export function solveMaxRange2D(
 	freqMHz: number,
 	hBS: number,
 	hUT: number,
-): number | null {
+): MaxRangeResult {
 	if (scenario === "FSPL") {
 		// No validity range to bound a search; invert Friis directly.
 		const d3D = 10 ** ((maplDb + 27.55 - 20 * Math.log10(freqMHz)) / 20);
-		return d2DFromD3D(d3D, hBS, hUT);
+		const d2D = d2DFromD3D(d3D, hBS, hUT);
+		if (d2D === null) {
+			return { kind: "unreachable" };
+		} else {
+			return { kind: "solved", d2DMeters: d2D };
+		}
 	}
 
 	// Express the validity range as 2D-distance bisection bounds. InH is bounded in 3D, so
 	// convert; a null upper bound means the height gap alone exceeds the valid 3D distance.
-	const range = VALIDITY_RANGES[scenario];
+	const { distanceMetric, distance } = SCENARIO_LIMITS[scenario];
 	let lo: number;
 	let hi: number;
-	if (range.metric === "d2D") {
-		lo = range.minMeters;
-		hi = range.maxMeters;
+	if (distanceMetric === "d2D") {
+		lo = distance.min;
+		hi = distance.max;
 	} else {
-		const hiD2D = d2DFromD3D(range.maxMeters, hBS, hUT);
+		const hiD2D = d2DFromD3D(distance.max, hBS, hUT);
 
 		if (hiD2D === null) {
-			return null;
+			return { kind: "unreachable" };
 		}
 
 		hi = hiD2D;
-		lo = d2DFromD3D(range.minMeters, hBS, hUT) ?? 0;
+		lo = d2DFromD3D(distance.min, hBS, hUT) ?? 0;
 	}
 
 	if (pathLossDb(scenario, hi, freqMHz, hBS, hUT) < maplDb) {
-		return null;  // range beyond validity
+		return { kind: "beyond-validity", limitMeters: hi };
 	}
 	if (pathLossDb(scenario, lo, freqMHz, hBS, hUT) > maplDb) {
-		return null;  // range below validity
+		return { kind: "unreachable" };
 	}
 
 	// Path loss grows with distance, so plain bisection converges; 60 iterations are precise enough.
@@ -254,5 +297,5 @@ export function solveMaxRange2D(
 			hi = mid;
 		}
 	}
-	return (lo + hi) / 2;
+	return { kind: "solved", d2DMeters: (lo + hi) / 2 };
 }

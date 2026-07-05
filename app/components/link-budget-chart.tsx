@@ -105,7 +105,7 @@ type LinkBudgetChartProps = {
 	bsHeightM: number;
 	utHeightM: number;
 	maplDb: number;
-	maxRangesM: Partial<Record<string, number>>;
+	maxRangeM: number | null;
 };
 
 export function LinkBudgetChart({
@@ -113,7 +113,7 @@ export function LinkBudgetChart({
 	bsHeightM,
 	utHeightM,
 	maplDb,
-	maxRangesM,
+	maxRangeM,
 }: LinkBudgetChartProps) {
 	const [hiddenFamilies, setHiddenFamilies] = useState<Set<PropagationFamily>>(() => new Set());
 
@@ -127,8 +127,7 @@ export function LinkBudgetChart({
 	}
 
 	const data = useMemo(() => {
-		const solvedRanges = Object.values(maxRangesM).filter((r): r is number => r != null,);
-		const maxDistance = Math.max(...solvedRanges, MIN_DISTANCE_M * 10) * 1.15;
+		const maxDistance = Math.max(maxRangeM ?? 0, MIN_DISTANCE_M * 10) * 1.15;
 		const distances = logSpace(MIN_DISTANCE_M, maxDistance, SAMPLE_COUNT);
 
 		return distances.map((distance) => {
@@ -144,7 +143,7 @@ export function LinkBudgetChart({
 			}
 			return point;
 		});
-	}, [freqMHz, bsHeightM, utHeightM, maxRangesM]);
+	}, [freqMHz, bsHeightM, utHeightM, maxRangeM]);
 
 	return (
 		// data-chart mirrors ChartContainer's own scope so the legend below (a sibling, not a
@@ -202,7 +201,7 @@ export function LinkBudgetChart({
 										: undefined
 							}
 							dot={false}
-							isAnimationActive={true}
+							isAnimationActive={false}
 							hide={hiddenFamilies.has(scenario.family)}
 						/>
 					))}

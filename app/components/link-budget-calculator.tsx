@@ -21,7 +21,11 @@ import {
 	receiverSensitivityDbm,
 	thermalNoiseDbm,
 } from "@/lib/linkbudget/budget";
-import { solveMaxRange2D } from "@/lib/linkbudget/pathloss";
+import {
+	isApplicable,
+	type MaxRangeResult,
+	solveMaxRange2D,
+} from "@/lib/linkbudget/pathloss";
 import { cn } from "@/lib/utils";
 import { AnimatedBackground } from "@/components/animated_background";
 import { LinkBudgetChart } from "./link-budget-chart";
@@ -38,7 +42,7 @@ type StationFields = {
 };
 
 const BS_DEFAULTS: StationFields = {
-	txPowerDbm: "46",
+	txPowerDbm: "49",
 	cableLossDb: "2",
 	antennaGainDbi: "17",
 	antennaHeightM: "25",
@@ -52,7 +56,7 @@ const UT_DEFAULTS: StationFields = {
 	antennaGainDbi: "0",
 	antennaHeightM: "1.5",
 	noiseFigureDb: "7",
-	sinrDb: "0",
+	sinrDb: "-6",
 };
 
 const conditionStyles: Record<string, string> = {
@@ -83,6 +87,28 @@ function parseNumber(
 		return { value: NaN, error: `${label} must be a valid number.` };
 	}
 	return { value, error: null };
+}
+
+function rangeMeters(result: MaxRangeResult): number | null {
+	switch (result.kind) {
+		case "solved":
+			return result.d2DMeters;
+		case "beyond-validity":
+			return result.limitMeters;
+		case "unreachable":
+			return null;
+	}
+}
+
+function formatRange(result: MaxRangeResult): string {
+	switch (result.kind) {
+		case "solved":
+			return formatDistance(result.d2DMeters);
+		case "beyond-validity":
+			return `> ${formatDistance(result.limitMeters)}`;
+		case "unreachable":
+			return "—";
+	}
 }
 
 function StationConfigCard({
@@ -276,18 +302,18 @@ export function LinkBudgetCalculator() {
 
 			const rows = PROPAGATION_SCENARIOS.map((scenario) => ({
 				scenario,
-				maxRangeM: solveMaxRange2D(
-					scenario.id,
-					mapl,
-					freq,
-					bsHeightM,
-					utHeightM,
-				),
-			})).sort((a, b) => (b.maxRangeM ?? -1) - (a.maxRangeM ?? -1));
+				result: solveMaxRange2D(scenario.id, mapl, freq, bsHeightM, utHeightM),
+				applicable: isApplicable(scenario.id, freq, bsHeightM, utHeightM),
+			})).sort((a, b) => (rangeMeters(b.result) ?? -1) - (rangeMeters(a.result) ?? -1));
 
-			const maxRangesM = Object.fromEntries(rows.map((r) => (
-        [r.scenario.id, r.maxRangeM ?? undefined]
-      )));
+			// Chart x-axis extent: FSPL is unclamped by any validity range and would
+			// stretch the log axis far past every calibrated curve, so exclude it.
+			const terrestrialMaxM = Math.max(
+				0,
+				...rows
+					.filter((row) => row.scenario.family !== "FSPL")
+					.map((row) => rangeMeters(row.result) ?? 0),
+			);
 
 			return {
 				error: null,
@@ -300,7 +326,7 @@ export function LinkBudgetCalculator() {
 					bsHeightM,
 					utHeightM,
 					maplDb: mapl,
-					maxRangesM,
+					maxRangeM: terrestrialMaxM > 0 ? terrestrialMaxM : null,
 				},
 			};
 		}, [direction, bs, ut, freqMHz, bandwidthMHz, additionalMarginDb]);
@@ -412,7 +438,7 @@ export function LinkBudgetCalculator() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{results.map(({ scenario, maxRangeM }) => (
+								{results.map(({ scenario, result, applicable }) => (
 									<TableRow key={scenario.id}>
 										<TableCell className="font-medium">
 											{scenario.label}
@@ -429,12 +455,28 @@ export function LinkBudgetCalculator() {
 											</Badge>
 										</TableCell>
 										<TableCell className="font-mono text-sm">
-											{maxRangeM !== null ? formatDistance(maxRangeM) : "—"}
+											{formatRange(result)}
+											{!applicable && (
+												<span
+													className="ml-1 text-amber-600 dark:text-amber-400"
+													title="Inputs outside the TR 38.901 applicability range for this scenario."
+												>
+													*
+												</span>
+											)}
 										</TableCell>
 									</TableRow>
 								))}
 							</TableBody>
 						</Table>
+
+						{results.some((row) => !row.applicable) && (
+							<p className="text-neutral-500 text-xs dark:text-neutral-400">
+								* Frequency or antenna heights are outside the 3GPP TR 38.901
+								applicability range for this scenario. The result is an
+								extrapolation, not a calibrated prediction.
+							</p>
+						)}
 					</>
 				)}
 			</CardContent>

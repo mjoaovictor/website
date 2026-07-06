@@ -177,24 +177,28 @@ function StationConfigCard({
 							onChange={update("antennaHeightM")}
 						/>
 					</div>
-					<div className="space-y-1.5">
-            {/* noise figure input */}
-						<Label className="text-xs">Noise Figure (dB)</Label>
-						<Input
-							type="number"
-							value={fields.noiseFigureDb}
-							onChange={update("noiseFigureDb")}
-						/>
-					</div>
-					<div className="space-y-1.5">
-            {/* required SINR input */}
-						<Label className="text-xs">Required SINR (dB)</Label>
-						<Input
-							type="number"
-							value={fields.sinrDb}
-							onChange={update("sinrDb")}
-						/>
-					</div>
+					{role === "receiver" && (
+						<>
+							<div className="space-y-1.5">
+                {/* noise figure input */}
+								<Label className="text-xs">Noise Figure (dB)</Label>
+								<Input
+									type="number"
+									value={fields.noiseFigureDb}
+									onChange={update("noiseFigureDb")}
+								/>
+							</div>
+							<div className="space-y-1.5">
+                {/* required SINR input */}
+								<Label className="text-xs">Required SINR (dB)</Label>
+								<Input
+									type="number"
+									value={fields.sinrDb}
+									onChange={update("sinrDb")}
+								/>
+							</div>
+						</>
+					)}
 				</div>
 
 				{role === "receiver" && (

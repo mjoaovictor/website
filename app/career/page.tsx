@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Briefcase, GraduationCap } from "lucide-react";
+import { geistMono } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 const EXPERIENCE = [
   {
@@ -117,7 +119,7 @@ function TimelineList({
 
 export default function Page() {
   return (
-    <section className="space-y-8">
+    <section className={cn(geistMono.variable, "space-y-8")}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

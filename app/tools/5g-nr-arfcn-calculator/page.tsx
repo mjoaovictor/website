@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { NrArfcnCalculator } from "@/app/components/nr-arfcn-calculator";
-import { ArrowRight } from "lucide-react";
+import { geistMono } from "@/lib/fonts";
 
 const UPDATES = [
   {
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <section>
+    <section className={geistMono.variable}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { cn } from "@/lib/utils";
@@ -11,11 +11,6 @@ import { Navbar } from "@/components/navbar";
 
 const geistSans = Geist({
   variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -110,7 +105,6 @@ export default function RootLayout({
       <body
         className={cn(
           geistSans.variable,
-          geistMono.variable,
           "bg-background font-sans tracking-tight antialiased",
         )}
       >

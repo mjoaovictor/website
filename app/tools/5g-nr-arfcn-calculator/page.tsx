@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { NrArfcnCalculator } from "@/app/components/nr-arfcn-calculator";
+import { ArrowRight } from "lucide-react";
 
 const UPDATES = [
   {
@@ -9,10 +10,13 @@ const UPDATES = [
   },
 ] as const;
 
+const baseUrl = "https://mjoaovictor.dev";
+
 // JSON-LD for SEO authority (E-E-A-T)
-const jsonLd = {
+const jsonLd = [
+  {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+    "@type": "WebApplication",
     name: "5G NR-ARFCN Calculator",
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Any",
@@ -28,7 +32,32 @@ const jsonLd = {
     },
     description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
     url: "https://mjoaovictor.dev/tools/5g-nr-arfcn-calculator",
-  };
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+					"@type": "ListItem",
+					position: 1,
+					name: "Home",
+					item: baseUrl,
+				},
+				{
+					"@type": "ListItem",
+					position: 2,
+					name: "Tools",
+					item: `${baseUrl}/tools`,
+				},
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "5G NR-ARFCN Calculator",
+        item: `${baseUrl}/tools/5g-nr-arfcn-calculator`,
+      },
+    ],
+  },
+];
 
 const ogImage = `/og?title=${encodeURIComponent("5G NR-ARFCN Calculator")}`;
 
@@ -78,12 +107,18 @@ export default function Page() {
       </div>
       <NrArfcnCalculator />
 
-      <div className="mt-4 text-sm">
+      <div className="mt-4 flex flex-col gap-2 text-sm">
         <Link
           href="/blog/frequency-raster"
           className="text-neutral-600 underline decoration-1 decoration-neutral-300 underline-offset-4 hover:text-neutral-900 hover:decoration-neutral-600 dark:text-neutral-400 dark:decoration-neutral-700 dark:hover:text-neutral-100 dark:hover:decoration-neutral-400"
         >
           How does the calculation work?
+        </Link>
+        <Link
+          href="/tools/link-budget-calculator"
+          className="text-neutral-600 underline decoration-1 decoration-neutral-300 underline-offset-4 hover:text-neutral-900 hover:decoration-neutral-600 dark:text-neutral-400 dark:decoration-neutral-700 dark:hover:text-neutral-100 dark:hover:decoration-neutral-400"
+        >
+          Estimate cell range for this frequency with the Link Budget Calculator →
         </Link>
       </div>
 

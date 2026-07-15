@@ -48,6 +48,9 @@ const jsonLd = {
   headline: "Career — João Victor",
   description: "Professional experience and education timeline of João Victor.",
   url: "https://mjoaovictor.dev/career",
+  mainEntity: {
+    "@id": "https://mjoaovictor.dev/#person",
+  },
 };
 
 export const metadata: Metadata = {

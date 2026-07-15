@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { cn } from "@/lib/utils";
@@ -8,20 +8,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-
-const ibmSans = IBM_Plex_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const ibmMono = IBM_Plex_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  display: "swap",
-});
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -37,8 +23,12 @@ const geistMono = Geist_Mono({
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": "https://mjoaovictor.dev/#person",
   name: "João Victor Menino E Silva",
-  alternateName: ["João Victor", "mjoaovictor"],
+  alternateName: [
+    "João Victor",
+    "mjoaovictor"
+  ],
   url: "https://mjoaovictor.dev",
   image: "https://mjoaovictor.dev/opengraph-image",
   jobTitle: "Telecommunications Engineer",

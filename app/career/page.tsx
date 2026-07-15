@@ -120,7 +120,7 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <h1 className="text-2xl font-semibold tracking-tighter">
-        Carrer
+        Career
       </h1>
 
       <div className="space-y-4">

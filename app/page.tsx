@@ -23,9 +23,24 @@ const TOOLS = [
   },
 ] as const;
 
+// JSON-LD: Semantic SEO
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "João Victor",
+  url: "https://mjoaovictor.dev",
+  publisher: {
+    "@id": "https://mjoaovictor.dev/#person",
+  },
+};
+
 export default function Page() {
   return (
     <section className="space-y-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <h1 className="text-2xl font-semibold tracking-tighter">
         João Victor
       </h1>

@@ -6,6 +6,7 @@ type Metadata = {
   publishedAt: string;
   summary: string;
   image?: string;
+  authors?: string[];
 };
 
 function parseFrontMatter(fileContent: string) {
@@ -19,8 +20,17 @@ function parseFrontMatter(fileContent: string) {
   frontMatterLines.forEach((line) => {
     let [key, ...valueArr] = line.split(": ");
     let value = valueArr.join(": ").trim();
+    let trimmedKey = key.trim();
+
+    if (trimmedKey === "authors") {
+      metadata.authors = value
+        .split(",")
+        .map((author) => author.trim().replace(/^['"](.*)['"]$/, "$1"));
+      return;
+    }
+
     value = value.replace(/^['"](.*)['"]$/, "$1"); // remove quotes
-    metadata[key.trim() as keyof Metadata] = value;
+    metadata[trimmedKey as keyof Omit<Metadata, "authors">] = value;
   });
 
   return { metadata: metadata as Metadata, content };

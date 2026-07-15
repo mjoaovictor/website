@@ -65,6 +65,7 @@ export default async function Page({ params }: Props) {
 
 	const baseUrl = "https://mjoaovictor.dev";
 	const postUrl = `${baseUrl}/blog/${post.slug}`;
+	const authors = post.metadata.authors ?? ["João Victor"];
 
 	const jsonLd = [
 		{
@@ -125,7 +126,10 @@ export default async function Page({ params }: Props) {
 					{post.metadata.title}
 				</h1>
 				<p className="text-neutral-600 text-sm dark:text-neutral-400">
-					{formatDate(post.metadata.publishedAt)}
+					{authors.join(", ")} ·{" "}
+					<time dateTime={post.metadata.publishedAt}>
+						{formatDate(post.metadata.publishedAt)}
+					</time>
 				</p>
 			</div>
 			<article className="prose prose-neutral dark:prose-invert">

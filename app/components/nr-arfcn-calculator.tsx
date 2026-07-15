@@ -28,7 +28,7 @@ const linkStyles: Record<string, string> = {
 
 export function NrArfcnCalculator() {
   const [inputMode, setInputMode] = useState<"arfcn" | "freq">("arfcn");
-  const [rawValue, setRawValue] = useState("");
+  const [rawValue, setRawValue] = useState("620000");
 
   const { arfcnStr, freqStr, matches, error } = useMemo(() => {
     const val = Number(rawValue);

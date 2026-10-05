@@ -1,8 +1,5 @@
 import { ImageResponse } from "next/og";
 
-// next.js route segment config
-export const runtime = "edge";
-
 // image metadata
 export const alt = "mjoaovictor | Telecommunications Engineer";
 export const size = {

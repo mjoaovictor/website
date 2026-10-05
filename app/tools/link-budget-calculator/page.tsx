@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LinkBudgetCalculator } from "@/app/components/link-budget-calculator";
 import { geistMono } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 const UPDATES = [
   {
@@ -92,7 +93,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <section className={geistMono.variable}>
+    <section className={cn(geistMono.variable, "mx-auto w-full max-w-2xl")}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

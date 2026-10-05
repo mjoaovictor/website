@@ -119,12 +119,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="mx-auto flex min-h-screen max-w-2xl flex-col p-4">
-            <Navbar />
+          <div className="flex min-h-screen flex-col p-4">
+            <div className="mx-auto w-full max-w-2xl">
+              <Navbar />
+            </div>
             <main className="min-w-0 flex-1 py-6">
               {children}
             </main>
-            <Footer />
+            <div className="mx-auto w-full max-w-2xl">
+              <Footer />
+            </div>
           </div>
         </ThemeProvider>
         {/* Vercel Analytics */}

@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <section className="space-y-8">
+    <section className="mx-auto w-full max-w-2xl space-y-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

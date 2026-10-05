@@ -29,4 +29,5 @@ There is no test suite in this repo — do not invent test commands.
 ## Conventions
 
 - Path alias `@/*` maps to the repo root (`tsconfig.json`), matching the shadcn aliases (`@/components`, `@/lib`, `@/components/ui`, etc.).
+- Page width is set per page, not in the layout: wrap each `page.tsx`'s root element in `mx-auto w-full max-w-2xl` (wider only for tools that need it).
 - `next.config.ts` is currently minimal/default — don't assume custom webpack/build behavior beyond what's written there.

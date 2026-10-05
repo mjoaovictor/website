@@ -24,7 +24,7 @@ export async function GET() {
 - [5G Link Budget Calculator](${baseUrl}/tools/link-budget-calculator): Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.
 - [Blog](${baseUrl}/blog): Articles on 5G NR technical topics.
 
-## Blog posts
+## Blog Posts
 
 ${postLines}
 

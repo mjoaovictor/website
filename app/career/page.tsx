@@ -10,7 +10,12 @@ const EXPERIENCE = [
     period: "Jun 2022 — Present",
     location: "Campinas, SP, Brazil",
     description:
-      "Troubleshoot mobile communications issues by analyzing 3G/4G/5G network logs with Qualcomm (QCAT, QXDM) and MediaTek (ELT) tools, and execute Feature Code Validation (FCV) to meet global carrier requirements. Build Python tooling and Gemini CLI-based skills to automate recurring log analysis workflows.",
+      "Embedded full-time with Motorola Mobility, troubleshooting mobile network and modem issues on Motorola smartphones running Qualcomm and MediaTek platforms.",
+    highlights: [
+      "Analyzed 2,000+ complex network, modem, and Baseband Processor (BP) issues across 10+ Motorola devices, supporting North America and rest-of-world markets.",
+      "Diagnosed issues across the full protocol stack and multiple technology domains using Qualcomm (QCAT, QXDM) and MediaTek (NLT, ELT) log analysis tools to resolve interoperability problems and meet carrier requirements.",
+      "Built Python tooling and Gemini CLI-based skills to automate recurring log analysis and verification workflows, removing manual bottlenecks for the engineering team.",
+    ],
   },
   {
     role: "Systems Specialist II",
@@ -18,7 +23,11 @@ const EXPERIENCE = [
     period: "Oct 2021 — Jun 2022",
     location: "Santa Rita do Sapucaí, MG, Brazil",
     description:
-      "Delivered 5G training covering protocols, signaling analysis, network planning and deployment, troubleshooting and optimization, and core/network virtualization (SDN and NFV). Consulted on 5G projects to meet customer needs.",
+      "Delivered mobile network training and 5G consulting at Inatel.",
+    highlights: [
+      "Delivered training on 5G protocols, signaling analysis, network planning and deployment, troubleshooting and optimization, and core/network virtualization (SDN, NFV) to engineers at Brazilian carriers (Vivo, TIM, Claro) and other companies, on behalf of Inatel, Huawei, and Ericsson.",
+      "Acted as a 5G consultant, supporting new projects and addressing customer requirements.",
+    ],
   },
   {
     role: "Systems Specialist I",
@@ -26,7 +35,12 @@ const EXPERIENCE = [
     period: "Jul 2018 — Oct 2021",
     location: "Santa Rita do Sapucaí, MG, Brazil",
     description:
-      "Performed consistency checks and activated new GSM/UMTS/LTE sites, configured RAN sharing, monitored KPIs, detected alarms, and optimized LTE logical parameters on the Inatel/Ericsson project. Automated processes with Excel/VBA and Python.",
+      "Specialist in mobile communications for the Inatel/Ericsson project.",
+    highlights: [
+      "Performed consistency checks and activation of new GSM/UMTS/LTE sites for TIM and Vivo, including RAN sharing configuration.",
+      "Monitored network statistics and KPIs, and performed alarm detection and logical parameter tuning/optimization for LTE sites.",
+      "Built process automation tools in Excel/VBA and Python to support daily site activation and monitoring workflows.",
+    ],
   },
 ] as const;
 
@@ -81,6 +95,7 @@ function TimelineList({
     period: string;
     location?: string;
     description?: string | null;
+    highlights?: readonly string[];
   }[];
   icon: typeof Briefcase;
 }) {
@@ -89,7 +104,7 @@ function TimelineList({
       {items.map((item) => (
         <li key={`${item.role ?? item.degree}-${item.period}`} className="relative space-y-1">
           <span className="-left-8 absolute top-0.5 flex size-4 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-900">
-            <Icon className="size-3 text-neutral-500 dark:text-neutral-400" />
+            <Icon className="size-4 text-neutral-500 dark:text-neutral-400" />
           </span>
 
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -107,9 +122,17 @@ function TimelineList({
           </p>
 
           {item.description ? (
-            <p className="leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className="mb-4 leading-relaxed text-neutral-600 dark:text-neutral-400">
               {item.description}
             </p>
+          ) : null}
+
+          {item.highlights ? (
+            <ul className="pl-5 space-y-1 leading-relaxed list-disc text-neutral-600 marker:text-neutral-400 dark:text-neutral-400 dark:marker:text-neutral-600">
+              {item.highlights.map((highlight) => (
+                <li key={highlight}>{highlight}</li>
+              ))}
+            </ul>
           ) : null}
         </li>
       ))}

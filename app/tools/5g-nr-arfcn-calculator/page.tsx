@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NrArfcnCalculator } from "@/app/components/nr-arfcn-calculator";
+import { NrArfcnCalculator } from "@/components/nr-arfcn-calculator";
 import { geistMono } from "@/lib/fonts";
 
 const UPDATES = [

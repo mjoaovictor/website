@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LinkBudgetCalculator } from "@/app/components/link-budget-calculator";
+import { LinkBudgetCalculator } from "@/components/link-budget-calculator";
 import { geistMono } from "@/lib/fonts";
 
 const UPDATES = [

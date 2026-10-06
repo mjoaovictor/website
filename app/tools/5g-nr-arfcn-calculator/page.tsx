@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { NrArfcnCalculator } from "@/app/components/nr-arfcn-calculator";
 import { geistMono } from "@/lib/fonts";
-import { cn } from "@/lib/utils";
 
 const UPDATES = [
   {
@@ -93,7 +92,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <section className={cn(geistMono.variable, "mx-auto w-full max-w-2xl")}>
+    <section className={geistMono.variable}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -114,9 +114,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="mx-auto flex min-h-screen max-w-2xl flex-col p-4">
+          <div className="flex flex-col max-w-2xl min-h-screen p-4 mx-auto">
             <Navbar />
-            <main className="min-w-0 flex-1 py-6">
+            <main className="flex-1 min-w-0 py-6">
               {children}
             </main>
             <Footer />

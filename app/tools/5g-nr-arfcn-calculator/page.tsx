@@ -11,12 +11,15 @@ const UPDATES = [
   },
 ] as const;
 
+const TITLE = "5G NR-ARFCN Calculator";
+const DESCRIPTION = "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.";
+
 // JSON-LD: Semantic SEO
 const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "5G NR-ARFCN Calculator",
+    name: TITLE,
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Any",
     browserRequirements: "Requires JavaScript",
@@ -29,7 +32,7 @@ const jsonLd = [
       price: "0",
       priceCurrency: "USD",
     },
-    description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
+    description: DESCRIPTION,
     url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
   },
   {
@@ -51,18 +54,18 @@ const jsonLd = [
       {
         "@type": "ListItem",
         position: 3,
-        name: "5G NR-ARFCN Calculator",
+        name: TITLE,
         item: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
       },
     ],
   },
 ];
 
-const ogImage = `/og?title=${encodeURIComponent("5G NR-ARFCN Calculator")}`;
+const ogImage = `/og?title=${encodeURIComponent(TITLE)}`;
 
 export const metadata: Metadata = {
-  title: "5G NR-ARFCN Calculator",
-  description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: {
     canonical: "/tools/5g-nr-arfcn-calculator",
   },
@@ -75,16 +78,16 @@ export const metadata: Metadata = {
     "telecommunications",
   ],
   openGraph: {
-    title: "5G NR-ARFCN Calculator",
-    description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
     type: "website",
     images: [{ url: ogImage }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "5G NR-ARFCN Calculator",
-    description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
+    title: TITLE,
+    description: DESCRIPTION,
     images: [ogImage],
   },
 };
@@ -98,10 +101,10 @@ export default function Page() {
       />
       <div className="mb-8 space-y-2">
         <h1 className="text-2xl font-semibold tracking-tighter">
-          5G NR-ARFCN Calculator
+          {TITLE}
         </h1>
         <p className="text-neutral-500 dark:text-neutral-400">
-          Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.
+          {DESCRIPTION}
         </p>
       </div>
       <NrArfcnCalculator />

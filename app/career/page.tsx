@@ -58,12 +58,14 @@ const EDUCATION = [
   },
 ] as const;
 
+const DESCRIPTION = "Professional experience and education timeline of João Victor.";
+
 // JSON-LD: Semantic SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfilePage",
   headline: "Career — João Victor",
-  description: "Professional experience and education timeline of João Victor.",
+  description: DESCRIPTION,
   url: `${siteConfig.url}/career`,
   mainEntity: {
     "@id": siteConfig.personId,
@@ -72,13 +74,13 @@ const jsonLd = {
 
 export const metadata: Metadata = {
   title: "Career",
-  description: "Professional experience and education timeline of João Victor.",
+  description: DESCRIPTION,
   alternates: {
     canonical: "/career",
   },
   openGraph: {
     title: "Career | mjoaovictor",
-    description: "Professional experience and education timeline of João Victor.",
+    description: DESCRIPTION,
     url: "/career",
     type: "profile",
   },

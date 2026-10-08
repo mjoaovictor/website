@@ -15,6 +15,8 @@ const TOOLS = [
 	},
 ] as const;
 
+const DESCRIPTION = "Useful tools for telecommunications and software development.";
+
 // JSON-LD: Semantic SEO
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -30,13 +32,13 @@ const jsonLd = {
 
 export const metadata: Metadata = {
 	title: "Tools",
-	description: "Useful tools for telecommunications and software development.",
+	description: DESCRIPTION,
 	alternates: {
 		canonical: "/tools",
 	},
 	openGraph: {
 		title: "Tools | mjoaovictor",
-		description: "Useful tools for telecommunications and software development.",
+		description: DESCRIPTION,
 		url: "/tools",
 		type: "website",
 	},

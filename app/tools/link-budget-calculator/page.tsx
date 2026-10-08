@@ -11,12 +11,15 @@ const UPDATES = [
   },
 ] as const;
 
+const TITLE = "5G Link Budget Calculator";
+const DESCRIPTION = "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.";
+
 // JSON-LD for SEO authority (E-E-A-T)
 const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "5G Link Budget Calculator",
+    name: TITLE,
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Any",
     browserRequirements: "Requires JavaScript",
@@ -29,7 +32,7 @@ const jsonLd = [
       price: "0",
       priceCurrency: "USD",
     },
-    description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
+    description: DESCRIPTION,
     url: `${siteConfig.url}/tools/link-budget-calculator`,
   },
   {
@@ -51,18 +54,18 @@ const jsonLd = [
       {
         "@type": "ListItem",
         position: 3,
-        name: "5G Link Budget Calculator",
+        name: TITLE,
         item: `${siteConfig.url}/tools/link-budget-calculator`,
       },
     ],
   },
 ];
 
-const ogImage = `/og?title=${encodeURIComponent("5G Link Budget Calculator")}`;
+const ogImage = `/og?title=${encodeURIComponent(TITLE)}`;
 
 export const metadata: Metadata = {
-  title: "5G Link Budget Calculator",
-  description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: {
     canonical: "/tools/link-budget-calculator",
   },
@@ -75,16 +78,16 @@ export const metadata: Metadata = {
     "telecommunications",
   ],
   openGraph: {
-    title: "5G Link Budget Calculator",
-    description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: `${siteConfig.url}/tools/link-budget-calculator`,
     type: "website",
     images: [{ url: ogImage }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "5G Link Budget Calculator",
-    description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
+    title: TITLE,
+    description: DESCRIPTION,
     images: [ogImage],
   },
 };
@@ -98,10 +101,10 @@ export default function Page() {
       />
       <div className="mb-8 space-y-2">
         <h1 className="font-semibold text-2xl tracking-tighter">
-          5G Link Budget Calculator
+          {TITLE}
         </h1>
         <p className="text-neutral-500 dark:text-neutral-400">
-          Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.
+          {DESCRIPTION}
         </p>
       </div>
       <LinkBudgetCalculator />

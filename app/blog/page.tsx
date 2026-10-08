@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { BlogPosts } from "@/components/posts";
 import { siteConfig } from "@/lib/site-config";
 
+const DESCRIPTION = "Texts exploring telecommunications, software development, and more.";
+
 // JSON-LD: Semantic SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   headline: "Blog by mjoaovictor",
-  description: "Texts exploring telecommunications, software development, and more.",
+  description: DESCRIPTION,
   url: `${siteConfig.url}/blog`,
   author: {
     "@type": "Person",
@@ -17,13 +19,13 @@ const jsonLd = {
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "Texts exploring telecommunications, software development, and more.",
+  description: DESCRIPTION,
   alternates: {
     canonical: "/blog",
   },
   openGraph: {
     title: "Blog | mjoaovictor",
-    description: "Texts exploring telecommunications, software development, and more.",
+    description: DESCRIPTION,
     url: "/blog",
     type: "website",
   },

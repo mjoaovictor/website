@@ -3,7 +3,7 @@
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { AnimatedBackground } from "./animated_background";
+import { AnimatedBackground } from "./animated-background";
 
 const THEMES = [
   {

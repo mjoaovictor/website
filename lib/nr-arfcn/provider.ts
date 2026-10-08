@@ -1,8 +1,8 @@
-// lib/nrarfcn/provider.ts
-import { BANDS_FR1, type NRBand as BandDef } from "./tables/bands_fr1";
-import { BANDS_FR2 } from "./tables/bands_fr2";
-import { NRARFCNS_FR1, type NRBand as BandRaster } from "./tables/nrarfcns_fr1";
-import { NRARFCNS_FR2 } from "./tables/nrarfcns_fr2";
+// lib/nr-arfcn/provider.ts
+import { BANDS_FR1, type NRBand as BandDef } from "./tables/bands-fr1";
+import { BANDS_FR2 } from "./tables/bands-fr2";
+import { NRARFCNS_FR1, type NRBand as BandRaster } from "./tables/nrarfcns-fr1";
+import { NRARFCNS_FR2 } from "./tables/nrarfcns-fr2";
 
 // unified Types (aliasing to avoid name collision)
 export type NrBandDefinition = BandDef;

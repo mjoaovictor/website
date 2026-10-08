@@ -2,7 +2,7 @@ import {
   ALL_BAND_DEFINITIONS,
   ALL_BAND_RASTERS,
   type NrBandDefinition,
-} from "@/lib/nrarfcn/provider";
+} from "./provider";
 
 export type BandMatch = {
   bandName: string; // e.g., "n78"

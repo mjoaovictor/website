@@ -19,8 +19,8 @@ import {
 	formatDistance,
 	PROPAGATION_SCENARIOS,
 	type PropagationFamily,
-} from "@/lib/linkbudget/budget";
-import { isWithinValidity, pathLossDb } from "@/lib/linkbudget/pathloss";
+} from "@/lib/link-budget/budget";
+import { isWithinValidity, pathLossDb } from "@/lib/link-budget/pathloss";
 import { cn } from "@/lib/utils";
 
 const ALL_FAMILIES = ["UMa", "UMi", "RMa", "InH", "FSPL"] as const;

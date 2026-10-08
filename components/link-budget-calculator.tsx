@@ -20,14 +20,14 @@ import {
 	PROPAGATION_SCENARIOS,
 	receiverSensitivityDbm,
 	thermalNoiseDbm,
-} from "@/lib/linkbudget/budget";
+} from "@/lib/link-budget/budget";
 import {
 	isApplicable,
 	type MaxRangeResult,
 	solveMaxRange2D,
-} from "@/lib/linkbudget/pathloss";
+} from "@/lib/link-budget/pathloss";
 import { cn } from "@/lib/utils";
-import { AnimatedBackground } from "@/components/animated_background";
+import { AnimatedBackground } from "@/components/animated-background";
 import { LinkBudgetChart } from "./link-budget-chart";
 
 type Direction = "downlink" | "uplink";

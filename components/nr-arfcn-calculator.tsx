@@ -5,7 +5,7 @@ import {
   arfcnToFrequency,
   frequencyToArfcn,
   getBandsForFrequency,
-} from "@/lib/3gpp";
+} from "@/lib/nr-arfcn/3gpp";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";

@@ -7,20 +7,21 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { siteConfig } from "@/lib/site-config";
 import { geistSans } from "@/lib/fonts";
 
 // JSON-LD: Semantic SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  "@id": "https://mjoaovictor.dev/#person",
-  name: "João Victor Menino E Silva",
+  "@id": siteConfig.personId,
+  name: siteConfig.author.fullName,
   alternateName: [
     "João Victor",
     "mjoaovictor"
   ],
-  url: "https://mjoaovictor.dev",
-  image: "https://mjoaovictor.dev/opengraph-image",
+  url: siteConfig.url,
+  image: `${siteConfig.url}/opengraph-image`,
   jobTitle: "Telecommunications Engineer",
   knowsAbout: [
     "Software Engineering",
@@ -43,12 +44,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mjoaovictor.dev"),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "mjoaovictor",
-    template: "%s | mjoaovictor",
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
   },
-  description: "My personal website built with Next.js and TypeScript.",
+  description: siteConfig.description,
   keywords: [
     "software engineer",
     "telecommunications",
@@ -56,8 +57,8 @@ export const metadata: Metadata = {
     "developer",
     "blog",
   ],
-  authors: [{ name: "João Victor", url: "https://mjoaovictor.dev" }],
-  creator: "João Victor",
+  authors: [{ name: siteConfig.author.name, url: siteConfig.url }],
+  creator: siteConfig.author.name,
   alternates: {
     canonical: "/",
     types: {
@@ -65,17 +66,17 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "mjoaovictor",
-    description: "My personal website built with Next.js and TypeScript.",
-    url: "https://mjoaovictor.dev",
-    siteName: "mjoaovictor.dev",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.domain,
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "mjoaovictor",
-    description: "My personal website built with Next.js and TypeScript.",
+    title: siteConfig.name,
+    description: siteConfig.description,
   },
   robots: {
     index: true,

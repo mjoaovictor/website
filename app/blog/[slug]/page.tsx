@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CustomMDX } from "@/components/mdx";
 import { formatDate, getPosts } from "@/lib/blog";
+import { siteConfig } from "@/lib/site-config";
 
 type Props = {
 	params: Promise<{ slug: string }>;
@@ -63,9 +64,8 @@ export default async function Page({ params }: Props) {
 		notFound();
 	}
 
-	const baseUrl = "https://mjoaovictor.dev";
-	const postUrl = `${baseUrl}/blog/${post.slug}`;
-	const authors = post.metadata.authors ?? ["João Victor"];
+	const postUrl = `${siteConfig.url}/blog/${post.slug}`;
+	const authors = post.metadata.authors ?? [siteConfig.author.name];
 
 	const jsonLd = [
 		{
@@ -76,8 +76,8 @@ export default async function Page({ params }: Props) {
 			dateModified: post.metadata.publishedAt,
 			description: post.metadata.summary,
 			image: post.metadata.image
-				? `${baseUrl}${post.metadata.image}`
-				: `${baseUrl}/og?title=${encodeURIComponent(post.metadata.title)}`,
+				? `${siteConfig.url}${post.metadata.image}`
+				: `${siteConfig.url}/og?title=${encodeURIComponent(post.metadata.title)}`,
 			url: postUrl,
 			mainEntityOfPage: {
 				"@type": "WebPage",
@@ -85,8 +85,8 @@ export default async function Page({ params }: Props) {
 			},
 			author: {
 				"@type": "Person",
-				name: "João Victor Menino E Silva",
-				url: baseUrl,
+				name: siteConfig.author.fullName,
+				url: siteConfig.url,
 			},
 		},
 		{
@@ -97,13 +97,13 @@ export default async function Page({ params }: Props) {
 					"@type": "ListItem",
 					position: 1,
 					name: "Home",
-					item: baseUrl,
+					item: siteConfig.url,
 				},
 				{
 					"@type": "ListItem",
 					position: 2,
 					name: "Blog",
-					item: `${baseUrl}/blog`,
+					item: `${siteConfig.url}/blog`,
 				},
 				{
 					"@type": "ListItem",

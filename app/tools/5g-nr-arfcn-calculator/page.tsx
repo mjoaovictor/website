@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 import Link from "next/link";
 import { NrArfcnCalculator } from "@/components/nr-arfcn-calculator";
 import { geistMono } from "@/lib/fonts";
@@ -9,8 +10,6 @@ const UPDATES = [
     description: "Update to 3GPP TS 38.104 V19.2.0 (2025-09).",
   },
 ] as const;
-
-const baseUrl = "https://mjoaovictor.dev";
 
 // JSON-LD: Semantic SEO
 const jsonLd = [
@@ -23,7 +22,7 @@ const jsonLd = [
     browserRequirements: "Requires JavaScript",
     author: {
       "@type": "Person",
-      name: "João Victor Menino E Silva"
+      name: siteConfig.author.fullName
     },
     offers: {
       "@type": "Offer",
@@ -31,7 +30,7 @@ const jsonLd = [
       priceCurrency: "USD",
     },
     description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
-    url: "https://mjoaovictor.dev/tools/5g-nr-arfcn-calculator",
+    url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
   },
   {
     "@context": "https://schema.org",
@@ -41,19 +40,19 @@ const jsonLd = [
 					"@type": "ListItem",
 					position: 1,
 					name: "Home",
-					item: baseUrl,
+					item: siteConfig.url,
 				},
 				{
 					"@type": "ListItem",
 					position: 2,
 					name: "Tools",
-					item: `${baseUrl}/tools`,
+					item: `${siteConfig.url}/tools`,
 				},
       {
         "@type": "ListItem",
         position: 3,
         name: "5G NR-ARFCN Calculator",
-        item: `${baseUrl}/tools/5g-nr-arfcn-calculator`,
+        item: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
       },
     ],
   },
@@ -78,7 +77,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "5G NR-ARFCN Calculator",
     description: "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.",
-    url: "https://mjoaovictor.dev/tools/5g-nr-arfcn-calculator",
+    url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
     type: "website",
     images: [{ url: ogImage }],
   },

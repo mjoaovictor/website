@@ -1,7 +1,8 @@
 import { getPosts } from "@/lib/blog";
+import { siteConfig } from "@/lib/site-config";
 
 export async function GET() {
-  const baseUrl = "https://mjoaovictor.dev";
+  const baseUrl = siteConfig.url;
   const allPosts = getPosts();
 
   const itemsXml = allPosts

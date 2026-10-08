@@ -1,6 +1,7 @@
 import { getPosts } from "@/lib/blog";
+import { siteConfig } from "@/lib/site-config";
 
-const baseUrl = "https://mjoaovictor.dev";
+const baseUrl = siteConfig.url;
 
 export async function GET() {
   const posts = getPosts().sort((a, b) =>
@@ -11,7 +12,7 @@ export async function GET() {
     `- [${post.metadata.title}](${baseUrl}/blog/${post.slug}): ${post.metadata.summary}`
   )).join("\n");
 
-  const body = `# mjoaovictor.dev
+  const body = `# ${siteConfig.domain}
 
 > Personal site of João Victor, a Telecommunications Engineer. Technical writing on 5G NR and interactive calculators for telecom engineering, grounded in 3GPP specifications.
 

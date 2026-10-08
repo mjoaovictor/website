@@ -1,7 +1,8 @@
 import { getPosts } from "@/lib/blog";
+import { siteConfig } from "@/lib/site-config";
 import { MetadataRoute } from "next";
 
-export const baseUrl = "https://mjoaovictor.dev";
+const baseUrl = siteConfig.url;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const allPosts = getPosts();

@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { siteConfig } from "@/lib/site-config";
 
 // image metadata
 export const alt = "mjoaovictor | Telecommunications Engineer";
@@ -60,7 +61,7 @@ export default async function Image() {
             color: "#e5e7eb"
           }}
         >
-          mjoaovictor.dev
+          {siteConfig.domain}
         </div>
       </div>
     ),

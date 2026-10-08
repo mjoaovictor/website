@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { siteConfig } from "@/lib/site-config";
 
 const TOOLS = [
 	{
@@ -23,7 +24,7 @@ const jsonLd = {
 		position: index + 1,
 		name: tool.label,
 		description: tool.description,
-		url: `https://mjoaovictor.dev${tool.href}`,
+		url: `${siteConfig.url}${tool.href}`,
 	})),
 };
 

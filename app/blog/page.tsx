@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BlogPosts } from "@/components/posts";
+import { siteConfig } from "@/lib/site-config";
 
 // JSON-LD: Semantic SEO
 const jsonLd = {
@@ -7,10 +8,10 @@ const jsonLd = {
   "@type": "CollectionPage",
   headline: "Blog by mjoaovictor",
   description: "Texts exploring telecommunications, software development, and more.",
-  url: "https://mjoaovictor.dev/blog",
+  url: `${siteConfig.url}/blog`,
   author: {
     "@type": "Person",
-    name: "João Victor Menino E Silva",
+    name: siteConfig.author.fullName,
   },
 };
 

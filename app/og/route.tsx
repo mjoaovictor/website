@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { siteConfig } from "@/lib/site-config";
 
 const size = {
   width: 1200,
@@ -7,7 +8,7 @@ const size = {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const title = searchParams.get("title") ?? "mjoaovictor.dev";
+  const title = searchParams.get("title") ?? siteConfig.domain;
 
   return new ImageResponse(
     (
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
             color: "#e5e7eb",
           }}
         >
-          mjoaovictor.dev
+          {siteConfig.domain}
         </div>
       </div>
     ),

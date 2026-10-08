@@ -25,6 +25,7 @@ There is no test suite in this repo — do not invent test commands.
 
 ## Conventions
 - Path alias `@/*` maps to the repo root (`tsconfig.json`), matching the shadcn aliases (`@/components`, `@/lib`, `@/components/ui`, etc.).
+- Site-wide values (URL, domain, site name, author, Person `@id`) live in `lib/site-config.ts`. Import `siteConfig` instead of hardcoding them; page-specific `metadata` and JSON-LD stay in each `page.tsx`.
 - `next.config.ts` is currently minimal/default — don't assume custom webpack/build behavior beyond what's written there.
 
 ## 1. Plan Before You Touch Code

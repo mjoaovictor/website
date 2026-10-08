@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { siteConfig } from "@/lib/site-config";
 
 const LINKS = [
   {
@@ -28,9 +29,9 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "João Victor",
-  url: "https://mjoaovictor.dev",
+  url: siteConfig.url,
   publisher: {
-    "@id": "https://mjoaovictor.dev/#person",
+    "@id": siteConfig.personId,
   },
 };
 

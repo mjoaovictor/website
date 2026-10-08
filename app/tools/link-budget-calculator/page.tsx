@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 import Link from "next/link";
 import { LinkBudgetCalculator } from "@/components/link-budget-calculator";
 import { geistMono } from "@/lib/fonts";
@@ -9,8 +10,6 @@ const UPDATES = [
     description: "Initial Release.",
   },
 ] as const;
-
-const baseUrl = "https://mjoaovictor.dev";
 
 // JSON-LD for SEO authority (E-E-A-T)
 const jsonLd = [
@@ -23,7 +22,7 @@ const jsonLd = [
     browserRequirements: "Requires JavaScript",
     author: {
       "@type": "Person",
-      name: "João Victor Menino E Silva",
+      name: siteConfig.author.fullName,
     },
     offers: {
       "@type": "Offer",
@@ -31,7 +30,7 @@ const jsonLd = [
       priceCurrency: "USD",
     },
     description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
-    url: "https://mjoaovictor.dev/tools/link-budget-calculator",
+    url: `${siteConfig.url}/tools/link-budget-calculator`,
   },
   {
     "@context": "https://schema.org",
@@ -41,19 +40,19 @@ const jsonLd = [
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: baseUrl,
+        item: siteConfig.url,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Tools",
-        item: `${baseUrl}/tools`,
+        item: `${siteConfig.url}/tools`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: "5G Link Budget Calculator",
-        item: `${baseUrl}/tools/link-budget-calculator`,
+        item: `${siteConfig.url}/tools/link-budget-calculator`,
       },
     ],
   },
@@ -78,7 +77,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "5G Link Budget Calculator",
     description: "Calculate 5G NR Link Budget and maximum cell range based on 3GPP TR 38.901.",
-    url: "https://mjoaovictor.dev/tools/link-budget-calculator",
+    url: `${siteConfig.url}/tools/link-budget-calculator`,
     type: "website",
     images: [{ url: ogImage }],
   },

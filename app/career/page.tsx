@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 import { Briefcase, GraduationCap } from "lucide-react";
 import { geistMono } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -63,9 +64,9 @@ const jsonLd = {
   "@type": "ProfilePage",
   headline: "Career — João Victor",
   description: "Professional experience and education timeline of João Victor.",
-  url: "https://mjoaovictor.dev/career",
+  url: `${siteConfig.url}/career`,
   mainEntity: {
-    "@id": "https://mjoaovictor.dev/#person",
+    "@id": siteConfig.personId,
   },
 };
 

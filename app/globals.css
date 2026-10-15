@@ -168,6 +168,31 @@
   @apply text-white;
 }
 
+/* Headline marker: same bar as `.prose mark`, drawn left to right once on load. */
+.marker-sweep {
+  background-image: linear-gradient(to bottom, transparent 65%, #67e8f9 65%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  box-decoration-break: clone;
+  animation: marker-sweep 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms backwards;
+}
+
+.dark .marker-sweep {
+  background-image: linear-gradient(to bottom, transparent 65%, #0e7490 65%);
+}
+
+@keyframes marker-sweep {
+  from {
+    background-size: 0% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker-sweep {
+    animation: none;
+  }
+}
+
 .prose .katex-display {
   overflow-x: auto;
   overflow-y: hidden;

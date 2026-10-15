@@ -36,27 +36,28 @@ export default function Page() {
     .slice(0, LATEST_POSTS_COUNT);
 
   return (
-    <div className="space-y-14">
+    <div className="space-y-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <section className="space-y-4">
-        <h1 className="text-balance font-semibold text-3xl leading-[1.2] tracking-[-0.04em] sm:text-4xl">
+        {/* text-balance: evens out line lengths so the headline does not end on a short line. */}
+        <h1 className="text-balance font-semibold text-3xl leading-[1.2] sm:text-4xl">
           Hey, I’m João! I&nbsp;<span className="marker-sweep">automate</span> and{" "}
-          <span className="marker-sweep [animation-delay:450ms]">explain</span>{" "}
+          <span className="marker-sweep">explain</span>{" "}
           Telecom Engineering.
         </h1>
-        <p className="max-w-prose text-pretty leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Senior Software Analyst at the Eldorado Research Institute and former
-          5G instructor at Inatel. Focused on 4G/5G, automation, and applied
-          software engineering.
+        {/* max-w-prose: caps lines at 65ch for readability.
+            text-pretty: avoids a lone word on the last line. */}
+        <p className="leading-[1.8] max-w-prose text-pretty text-neutral-600 dark:text-neutral-400">
+          I’m a Senior Software Analyst at the Eldorado Research Institute. This site is my playground for tools, automation, and whatever I'm learning next.
         </p>
       </section>
 
-      <section aria-labelledby="tools-heading" className="space-y-4">
-        <h2 id="tools-heading" className="font-medium text-sm">
+      <section className="space-y-4">
+        <h2 id="tools-heading" className="text-sm font-medium">
           Tools
         </h2>
         <ul className="space-y-4">
@@ -65,7 +66,7 @@ export default function Page() {
               <Link href={tool.href} className={LINK_STYLE}>
                 {tool.label}
               </Link>
-              <p className="mt-1 text-neutral-600 text-sm dark:text-neutral-400">
+              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                 {tool.description}
               </p>
             </li>
@@ -74,8 +75,8 @@ export default function Page() {
       </section>
 
       <section aria-labelledby="posts-heading" className="space-y-4">
-        <h2 id="posts-heading" className="font-medium text-sm">
-          Latest posts
+        <h2 id="posts-heading" className="text-sm font-medium">
+          Latest Posts
         </h2>
         <ul className="space-y-4">
           {posts.map((post) => (
@@ -83,7 +84,7 @@ export default function Page() {
               <Link href={`/blog/${post.slug}`} className={LINK_STYLE}>
                 {post.metadata.title}
               </Link>
-              <p className="mt-1 text-neutral-600 text-sm dark:text-neutral-400">
+              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                 {formatDate(post.metadata.publishedAt)}
               </p>
             </li>
@@ -91,11 +92,11 @@ export default function Page() {
         </ul>
       </section>
 
-      <ul className="flex gap-4 text-neutral-600 text-sm dark:text-neutral-400">
+      <ul className="flex gap-4 text-sm text-neutral-600 dark:text-neutral-400">
         {LINKS.map((link) => (
           <li key={link.label}>
             <a
-              className="group inline-flex items-center gap-1 hover:text-neutral-900 dark:hover:text-neutral-100"
+              className="inline-flex items-center gap-1 group hover:text-neutral-900 dark:hover:text-neutral-100"
               rel="noopener noreferrer"
               target="_blank"
               href={link.href}

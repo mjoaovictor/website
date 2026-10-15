@@ -9,15 +9,15 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
 	{
 		path: "/career",
-		name: "career",
+		name: "Career",
 	},
 	{
 		path: "/blog",
-		name: "blog",
+		name: "Blog",
 	},
 	{
 		path: "/tools",
-		name: "tools",
+		name: "Tools",
 	},
 ] as const;
 
@@ -44,13 +44,13 @@ export function Navbar() {
 		>
 			<a
 				href="#main"
-				className="sr-only rounded-md bg-background px-3 py-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:ring-2 focus:ring-ring focus:outline-none"
+				className="px-3 py-2 rounded-md sr-only bg-background focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:ring-2 focus:ring-ring focus:outline-none"
 			>
 				skip to content
 			</a>
 			<nav
 				aria-label="Primary"
-				className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 tracking-tight"
+				className="flex items-center justify-between max-w-3xl px-4 mx-auto tracking-tight h-14"
 			>
 				<Link
 					href="/"
@@ -62,7 +62,7 @@ export function Navbar() {
 				>
 					{siteConfig.name}
 				</Link>
-				<div className="-mr-2 flex gap-1">
+				<div className="flex gap-1 -mr-2">
 					{NAV_ITEMS.map(({ path, name }) => {
 						const isActive =
 							pathname === path || pathname.startsWith(`${path}/`);

@@ -65,6 +65,7 @@ There is no test suite in this repo — do not invent test commands.
 
 ## Lessons
 <!-- Newest on top. Delete what no longer applies. -->
+- When committing, use the `dev` branch and never push or merge to `main` unless asked; the work is not published yet
 - When naming files or folders, use kebab-case (e.g. `lib/nr-arfcn/bands-fr1.ts`)
 
 <!-- BEGIN:nextjs-agent-rules -->

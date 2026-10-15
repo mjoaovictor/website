@@ -37,7 +37,7 @@ const jsonLd = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "#262626" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -115,9 +115,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex flex-col max-w-2xl min-h-screen p-4 mx-auto">
-            <Navbar />
-            <main className="flex-1 min-w-0 py-6">
+          <Navbar />
+          <div className="flex flex-col max-w-3xl min-h-[calc(100vh-3.5rem)] px-4 pb-4 mx-auto">
+            <main id="main" className="flex-1 min-w-0 py-8">
               {children}
             </main>
             <Footer />

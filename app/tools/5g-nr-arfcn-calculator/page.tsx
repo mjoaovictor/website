@@ -3,7 +3,6 @@ import { siteConfig } from "@/lib/site-config";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
 import { NrArfcnCalculator } from "@/components/nr-arfcn-calculator";
-import { geistMono } from "@/lib/fonts";
 import { pageMetadata } from "@/lib/seo";
 
 const UPDATES = [
@@ -27,7 +26,7 @@ export const metadata: Metadata = pageMetadata({
 
 export default function Page() {
   return (
-    <section className={geistMono.variable}>
+    <section>
       <JsonLd
         data={{
           "@graph": [

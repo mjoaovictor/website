@@ -1,15 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { cn } from "@/lib/utils";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/footer";
 import { siteConfig } from "@/lib/site-config";
 import { openGraphBase } from "@/lib/seo";
-import { geistSans } from "@/lib/fonts";
 import { Header } from "@/components/header";
 import { JsonLd } from "@/components/json-ld";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const viewport: Viewport = {
   themeColor: [
@@ -63,13 +72,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body
-        className={cn(
-          geistSans.variable,
-          "flex flex-col min-h-dvh bg-background font-sans tracking-tight antialiased",
-        )}
-      >
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
+      <body className="flex flex-col min-h-dvh bg-background tracking-tight antialiased">
         <JsonLd data={jsonLd} />
         <ThemeProvider
           attribute="class"

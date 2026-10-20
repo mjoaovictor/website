@@ -1,140 +1,120 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { CustomMDX } from "@/components/mdx";
-import { formatDate, getPosts } from "@/lib/blog";
-import { siteConfig } from "@/lib/site-config";
+import type { Metadata } from "next"
+import Link from "next/link"
+import { notFound } from "next/navigation"
+import { JsonLd } from "@/components/json-ld"
+import { SharePost } from "@/components/share-post"
+import { getAllSlugs, getPost } from "@/lib/blog"
+import { pageMetadata } from "@/lib/seo"
+import { siteConfig } from "@/lib/site-config"
+import "katex/dist/katex.min.css"
 
-type Props = {
-	params: Promise<{ slug: string }>;
-};
+type Props = { params: Promise<{ slug: string }> }
 
-export async function generateStaticParams() {
-	const posts = getPosts();
-	return posts.map((post) => ({
-		slug: post.slug,
-	}));
+export default async function Page({ params }: Props) {
+  const { slug } = await params
+  const post = await getPost(slug)
+
+  if (!post) {
+    notFound()
+  }
+
+  const { meta, Content } = post
+  const url = `${siteConfig.url}/blog/${slug}`
+
+  return (
+    <article className="py-8">
+      <JsonLd
+        data={{
+          "@graph": [
+            {
+              "@type": "BlogPosting",
+              headline: meta.title,
+              description: meta.description,
+              datePublished: meta.date.toISOString(),
+              dateModified: meta.date.toISOString(),
+              url,
+              mainEntityOfPage: url,
+              author: { "@id": siteConfig.personId },
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: siteConfig.url
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Blog",
+                  item: `${siteConfig.url}/blog`
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: meta.title,
+                  item: url
+                },
+              ],
+            },
+          ],
+        }}
+      />
+      <Link
+        href="/blog"
+        className="text-sm text-muted-foreground underline-offset-6 hover:text-foreground hover:underline"
+      >
+        &larr; Blog
+      </Link>
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight">
+        {meta.title}
+      </h1>
+      <p className="mt-3 max-w-prose text-muted-foreground">
+        {meta.description}
+      </p>
+      <time
+        dateTime={meta.date.toISOString()}
+        className="block mt-3 font-mono text-sm tabular-nums text-muted-foreground"
+      >
+        {meta.date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          timeZone: "UTC",
+        })}
+      </time>
+      <SharePost title={meta.title} url={url} className="mt-3" />
+
+      <div className="prose prose-neutral dark:prose-invert mt-8 max-w-none border-t pt-8 *:first:mt-0">
+        <Content />
+      </div>
+    </article>
+  )
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-	const { slug } = await params;
-	const post = getPosts().find((post) => post.slug === slug);
+  const { slug } = await params
+  const post = await getPost(slug)
 
-	if (!post) {
-		return {};
-	}
+  if (!post) {
+    return {}
+  }
 
-	const {
-		title,
-		publishedAt: publishedTime,
-		summary: description,
-		image,
-	} = post.metadata;
-
-	const ogImage = image ? image : `/og?title=${encodeURIComponent(title)}`;
-
-	return {
-		title,
-		description,
-		alternates: {
-			canonical: `/blog/${post.slug}`,
-		},
-		openGraph: {
-			title,
-			description,
-			type: "article",
-			publishedTime,
-			url: `/blog/${post.slug}`,
-			images: [{ url: ogImage }],
-			authors: ["João Victor"],
-		},
-		twitter: {
-			card: "summary_large_image",
-			title,
-			description,
-			images: [ogImage],
-		},
-	};
+  return pageMetadata({
+    title: post.meta.title,
+    description: post.meta.description,
+    path: `/blog/${slug}`,
+    openGraph: {
+      type: "article",
+      publishedTime: post.meta.date.toISOString()
+    },
+  })
 }
 
-export default async function Page({ params }: Props) {
-	const { slug } = await params;
-	const post = getPosts().find((post) => post.slug === slug);
-
-	if (!post) {
-		notFound();
-	}
-
-	const postUrl = `${siteConfig.url}/blog/${post.slug}`;
-	const authors = post.metadata.authors ?? [siteConfig.author.name];
-
-	const jsonLd = [
-		{
-			"@context": "https://schema.org",
-			"@type": "BlogPosting",
-			headline: post.metadata.title,
-			datePublished: post.metadata.publishedAt,
-			dateModified: post.metadata.publishedAt,
-			description: post.metadata.summary,
-			image: post.metadata.image
-				? `${siteConfig.url}${post.metadata.image}`
-				: `${siteConfig.url}/og?title=${encodeURIComponent(post.metadata.title)}`,
-			url: postUrl,
-			mainEntityOfPage: {
-				"@type": "WebPage",
-				"@id": postUrl,
-			},
-			author: {
-				"@type": "Person",
-				name: siteConfig.author.fullName,
-				url: siteConfig.url,
-			},
-		},
-		{
-			"@context": "https://schema.org",
-			"@type": "BreadcrumbList",
-			itemListElement: [
-				{
-					"@type": "ListItem",
-					position: 1,
-					name: "Home",
-					item: siteConfig.url,
-				},
-				{
-					"@type": "ListItem",
-					position: 2,
-					name: "Blog",
-					item: `${siteConfig.url}/blog`,
-				},
-				{
-					"@type": "ListItem",
-					position: 3,
-					name: post.metadata.title,
-					item: postUrl,
-				},
-			],
-		},
-	];
-
-	return (
-		<section className="space-y-8">
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-			/>
-			<div className="space-y-1">
-				<h1 className="font-semibold text-2xl tracking-tighter">
-					{post.metadata.title}
-				</h1>
-				<p className="text-neutral-600 text-sm dark:text-neutral-400">
-					{authors.join(", ")} ·{" "}
-					<time dateTime={post.metadata.publishedAt}>
-						{formatDate(post.metadata.publishedAt)}
-					</time>
-				</p>
-			</div>
-			<article className="prose prose-neutral dark:prose-invert">
-				<CustomMDX source={post.content} />
-			</article>
-		</section>
-	);
+export async function generateStaticParams() {
+  return (await getAllSlugs()).map((slug) => ({ slug }))
 }
+
+export const dynamicParams = false

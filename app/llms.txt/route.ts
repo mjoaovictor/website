@@ -1,15 +1,13 @@
-import { getPosts } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
 import { siteConfig } from "@/lib/site-config";
 
 const baseUrl = siteConfig.url;
 
 export async function GET() {
-  const posts = getPosts().sort((a, b) =>
-		b.metadata.publishedAt.localeCompare(a.metadata.publishedAt),
-	);
+  const posts = await getAllPosts();
 
   const postLines = posts.map((post) => (
-    `- [${post.metadata.title}](${baseUrl}/blog/${post.slug}): ${post.metadata.summary}`
+    `- [${post.title}](${baseUrl}/blog/${post.slug}): ${post.description}`
   )).join("\n");
 
   const body = `# ${siteConfig.domain}

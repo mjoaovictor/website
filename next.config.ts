@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 const csp = [
   "default-src 'self'",
@@ -36,4 +37,25 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withMDX = createMDX({
+  extension: /\.(md|mdx)$/,
+  options: {
+    // Turbopack requires plugins as strings, not functions
+    remarkPlugins: ["remark-frontmatter", "remark-gfm", "remark-math"],
+    rehypePlugins: [
+      // Left-align display math to share the prose's left edge
+      ["rehype-katex", { fleqn: true }],
+      [
+        "rehype-pretty-code",
+        {
+          theme: { light: "github-light", dark: "github-dark" },
+          keepBackground: false,
+          // Untagged fences would otherwise be rendered as inline code
+          defaultLang: { block: "plaintext" },
+        },
+      ],
+    ],
+  },
+});
+
+export default withMDX(nextConfig);

@@ -1,20 +1,17 @@
-import { getPosts } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
 import { siteConfig } from "@/lib/site-config";
 import { MetadataRoute } from "next";
 
 const baseUrl = siteConfig.url;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const allPosts = getPosts();
+  const allPosts = await getAllPosts();
 
-  const latestPostDate =
-    allPosts.length > 0
-      ? new Date(allPosts[0].metadata.publishedAt)
-      : new Date();
+  const latestPostDate = allPosts[0]?.date ?? new Date();
 
   const blogUrls = allPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.metadata.publishedAt),
+    lastModified: post.date,
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));

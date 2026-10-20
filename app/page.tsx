@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { formatDate, getPosts } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
 import { siteConfig } from "@/lib/site-config";
 import { TOOLS } from "@/lib/tools";
 
@@ -30,10 +30,8 @@ const jsonLd = {
   },
 };
 
-export default function Page() {
-  const posts = getPosts()
-    .sort((a, b) => b.metadata.publishedAt.localeCompare(a.metadata.publishedAt))
-    .slice(0, LATEST_POSTS_COUNT);
+export default async function Page() {
+  const posts = (await getAllPosts()).slice(0, LATEST_POSTS_COUNT);
 
   return (
     <div className="space-y-16">
@@ -82,11 +80,19 @@ export default function Page() {
           {posts.map((post) => (
             <li key={post.slug}>
               <Link href={`/blog/${post.slug}`} className={LINK_STYLE}>
-                {post.metadata.title}
+                {post.title}
               </Link>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                {formatDate(post.metadata.publishedAt)}
-              </p>
+              <time
+                dateTime={post.date.toISOString()}
+                className="block mt-1 text-sm text-neutral-600 dark:text-neutral-400"
+              >
+                {post.date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  timeZone: "UTC",
+                })}
+              </time>
             </li>
           ))}
         </ul>

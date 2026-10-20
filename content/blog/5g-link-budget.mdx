@@ -1,8 +1,7 @@
 ---
 title: "5G Link Budget"
-publishedAt: "2026-07-05"
-summary: "How a 5G NR link budget works?"
-authors: João Victor
+description: "How a 5G NR link budget works?"
+date: 2026-07-05
 ---
 
 A link budget answers one question: **does the signal that leaves the transmitter arrive at the receiver with enough power to be decoded?** It is an accounting exercise: add up every gain and subtract every loss between the two antennas. What remains is the path loss the radio link can afford. Feed that number into a propagation model, and you get the maximum cell range.
@@ -12,23 +11,23 @@ This post walks through the calculation exactly as implemented in my [5G Link Bu
 In one line, the entire budget is:
 
 $$
-\text{MAPL} = \underbrace{P_{\text{TX}} - L_{\text{TX}} + G_{\text{TX}}}_{\text{EIRP}} + G_{\text{RX}} - L_{\text{RX}} - \underbrace{\left(NF + \left(-174 + 10\log_{10}(B)\right) + \text{SINR}_{\text{REQ}}\right)}_{\text{Receiver Sensitivity (S) }} - M
+\text{MAPL} = \underbrace{P_{\text{TX}} - L_{\text{TX}} + G_{\text{TX}}}_{\text{EIRP}} + G_{\text{RX}} - L_{\text{RX}} - \underbrace{\left(\text{NF} + \left(-174 + 10\log_{10}(B)\right) + \text{SINR}_{\text{REQ}}\right)}_{\text{sensitivity } S} - M
 $$
 
-where $P_{\text{TX}}$ is the Transmit Power (dBm), $L_{\text{TX}}$/$L_{\text{RX}}$ are the Cable Losses (dB), $G_{\text{TX}}$/$G_{\text{RX}}$ are the Antenna Gains (dBi), $NF$ is the Receiver Noise Figure (dB), $B$ is the channel bandwidth (Hz), $\text{SINR}_{\text{REQ}}$ is the required cell-edge SINR (dB).
+where $P_{\text{TX}}$ is the Transmit Power (dBm), $L_{\text{TX}}$/$L_{\text{RX}}$ are the Cable Losses (dB), $G_{\text{TX}}$/$G_{\text{RX}}$ are the Antenna Gains (dBi), $\text{NF}$ is the Receiver Noise Figure (dB), $B$ is the channel bandwidth (Hz), $\text{SINR}_{\text{REQ}}$ is the required cell-edge SINR (dB).
 
 The variable $M$ lumps additional margins (dB) like slow fading, penetration, foliage, body block, and rain. In 5G deployments (especially mmWave), these margins are the most volatile elements and dictate whether a link fails in the real world.
 
 The result is the **MAPL (Maximum Allowable Path Loss)**: the absolute limit your signal can degrade before the link dies. The sections below unpack each group of terms.
 
-## 1. The Power Ledger
+## The Power Ledger
 
 ### EIRP
 
 On the transmit side, everything is condensed into the **EIRP** (Effective Isotropic Radiated Power). This is the conducted power, minus what the feeder eats, plus what the antenna focuses:
 
 $$
-\text{EIRP} = P_{\text{TX}} - L_{\text{cable}} + G_{\text{TX}}
+\text{EIRP} = P_{\text{TX}} - L_{\text{TX}} + G_{\text{TX}}
 $$
 
 ### Thermal Noise
@@ -43,10 +42,10 @@ This is why bandwidth is not free. Going from 20 MHz to 100 MHz raises the noise
 
 ### Receiver Sensitivity
 
-The receiver requires the signal to sit a specific margin above that noise floor. The **required SINR** depends on the modulation and coding scheme (MCS) targeted at the cell edge (a negative SINR is realistic here). Furthermore, the receiver's own hardware **noise figure** ($NF$) degrades this floor:
+The receiver requires the signal to sit a specific margin above that noise floor. The **required SINR** depends on the modulation and coding scheme (MCS) targeted at the cell edge (a negative SINR is realistic here). Furthermore, the receiver's own hardware **noise figure** ($\text{NF}$) degrades this floor:
 
 $$
-S = NF + N + \text{SINR}_{\text{REQ}}
+S = \text{NF} + N + \text{SINR}_{\text{REQ}}
 $$
 
 ### MAPL
@@ -59,7 +58,7 @@ $$
 
 **Note**: The link budget is directional. A macro Base Station (BS) transmits at ~49 dBm through a 17 dBi antenna gain; the User Equipment (UE) answers with 23 dBm and roughly 0 dBi antenna gain. The downlink and uplink budgets are asymmetrical, and the uplink is usually the limiting one. The calculator computes whichever direction you select, swapping the transmitter and receiver roles accordingly.
 
-## 2. From MAPL To Distance: 3GPP TR 38.901
+## From MAPL To Distance: 3GPP TR 38.901
 
 A MAPL in dB is a useless metric without a model translating it to physical distance. [3GPP TR 38.901](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3173) (Table 7.4.1-1) defines the reference models for 0.5–100 GHz. Two distance conventions dictate the math:
 
@@ -76,7 +75,9 @@ $$
 
 FSPL is not a deployment model. It is the absolute lower bound every other curve is measured against.
 
-> **LOS vs. NLOS.** Line of Sight (LOS) means an unobstructed straight path between BS and UT; Non-Line of Sight (NLOS) means that path is blocked, and the signal reaches the receiver only through reflection, diffraction, or scattering. 3GPP TR 38.901 fits a separate curve to each condition because they behave differently, so every scenario below comes as a LOS/NLOS pair. Every NLOS formula is defined as $\max(\text{PL}_{\text{LOS}}, \text{PL}'_{\text{NLOS}})$, which guarantees it never predicts less loss than the LOS baseline at the same point.
+<Callout>
+**LOS vs. NLOS.** Line of Sight (LOS) means an unobstructed straight path between BS and UT; Non-Line of Sight (NLOS) means that path is blocked, and the signal reaches the receiver only through reflection, diffraction, or scattering. 3GPP TR 38.901 fits a separate curve to each condition because they behave differently, so every scenario below comes as a LOS/NLOS pair. Every NLOS formula is defined as $\max(\text{PL}_{\text{LOS}}, \text{PL}'_{\text{NLOS}})$, which guarantees it never predicts less loss than the LOS baseline at the same point.
+</Callout>
 
 _In all formulas below, $f_c$ is in GHz and distances are in meters._
 
@@ -149,7 +150,7 @@ $$
 \text{PL}_{\text{InH-NLOS}} = \max\left(\text{PL}_{\text{InH-LOS}},\ 17.3 + 38.3\log_{10}(d_{\text{3D}}) + 24.9\log_{10}(f_c)\right)
 $$
 
-## 3. Respecting Model Boundaries
+## Respecting Model Boundaries
 
 Every 3GPP TR 38.901 formula is an empirical fit. The spec dictates exactly where that fit is valid. Step outside these bounds, and you are guessing, not engineering.
 
@@ -168,7 +169,7 @@ The calculator respects these boundaries instead of silently extrapolating:
 - If the budget is not exhausted at the window's ceiling, the result is reported as **"> limit"**. The true range exceeds the model's reach, and the model cannot say by how much.
 - If your frequency or antenna heights fall outside the applicability column, the result is marked as an **extrapolation**, not a calibrated prediction.
 
-## 4. Example
+## Example
 
 Scenario: Downlink, band n78 (3.5 GHz), 100 MHz channel. A macro BS (49 dBm, 17 dBi, 2 dB feeder, 25 m) transmitting to a handheld UE (0 dBi, NF 7 dB, cell-edge SINR −6 dB, 1.5 m), with a 3 dB additional margin:
 
@@ -185,7 +186,7 @@ S = 7 + (-94) + (-6) = -93\ \text{dBm}
 $$
 
 $$
-\text{MAPL} = 64 + 0 - 0 - (-93) - 3 = 154\ \text{dB}
+\text{MAPL} = 64 + 0 - 0 - (-93) - 3 = 154\,\text{dB}
 $$
 
 Feeding 154 dB into the propagation models:

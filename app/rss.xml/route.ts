@@ -1,25 +1,19 @@
-import { getPosts } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
 import { siteConfig } from "@/lib/site-config";
 
 export async function GET() {
   const baseUrl = siteConfig.url;
-  const allPosts = getPosts();
+  const allPosts = await getAllPosts();
 
   const itemsXml = allPosts
-    .sort((a, b) => {
-      return (
-        new Date(b.metadata.publishedAt).getTime() -
-        new Date(a.metadata.publishedAt).getTime()
-      );
-    })
     .map(
       (post) =>
         `<item>
-          <title><![CDATA[${post.metadata.title}]]></title>
+          <title><![CDATA[${post.title}]]></title>
           <link>${baseUrl}/blog/${post.slug}</link>
           <guid isPermaLink="true">${baseUrl}/blog/${post.slug}</guid>
-          <pubDate>${new Date(post.metadata.publishedAt).toUTCString()}</pubDate>
-          <description><![CDATA[${post.metadata.summary}]]></description>
+          <pubDate>${post.date.toUTCString()}</pubDate>
+          <description><![CDATA[${post.description}]]></description>
         </item>`,
     )
     .join("");

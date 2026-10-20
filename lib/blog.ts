@@ -1,103 +1,62 @@
-import fs from "fs";
-import path from "path";
+import "server-only"
+import { readdir, readFile } from "node:fs/promises"
+import path from "node:path"
+import matter from "gray-matter"
+import { cache, type ComponentType } from "react"
+import { z } from "zod"
 
-type Metadata = {
-  title: string;
-  publishedAt: string;
-  summary: string;
-  image?: string;
-  authors?: string[];
-};
+// YAML parses unquoted dates (2026-10-17) to Date, quoted ones stay strings; coerce handles both.
+const frontmatterSchema = z.object({
+  title: z.string().trim().min(1),
+  description: z.string().trim().min(1),
+  date: z.coerce.date(),
+})
 
-function parseFrontMatter(fileContent: string) {
-  let frontMatterRegex = /---\s*([\s\S]*?)\s*---/;
-  let match = frontMatterRegex.exec(fileContent);
-  let frontMatterBlock = match![1];
-  let content = fileContent.replace(frontMatterRegex, "").trim();
-  let frontMatterLines = frontMatterBlock.trim().split("\n");
-  let metadata: Partial<Metadata> = {};
+export type PostFrontmatter = z.infer<typeof frontmatterSchema>
 
-  frontMatterLines.forEach((line) => {
-    let [key, ...valueArr] = line.split(": ");
-    let value = valueArr.join(": ").trim();
-    let trimmedKey = key.trim();
+export type PostMetadata = PostFrontmatter & { slug: string }
 
-    if (trimmedKey === "authors") {
-      metadata.authors = value
-        .split(",")
-        .map((author) => author.trim().replace(/^['"](.*)['"]$/, "$1"));
-      return;
-    }
+const POSTS_DIR = path.join(process.cwd(), "content", "blog")
+const MDX_EXTENSION = ".mdx"
 
-    value = value.replace(/^['"](.*)['"]$/, "$1"); // remove quotes
-    metadata[trimmedKey as keyof Omit<Metadata, "authors">] = value;
-  });
+async function readMetadata(slug: string): Promise<PostMetadata> {
+  const filePath = path.join(POSTS_DIR, `${slug}${MDX_EXTENSION}`)
+  const { data } = matter(await readFile(filePath, "utf8"))
 
-  return { metadata: metadata as Metadata, content };
-}
-
-function getMDXFiles(dir: string): string[] {
-  return fs.readdirSync(dir).filter((file) => path.extname(file) === ".mdx");
-}
-
-function readMDXFile(filePath: string): {
-  metadata: Metadata;
-  content: string;
-} {
-  let rawContent = fs.readFileSync(filePath, "utf-8");
-  return parseFrontMatter(rawContent);
-}
-
-function getMDXData(dir: string) {
-  let mdxFiles = getMDXFiles(dir);
-  return mdxFiles.map((file) => {
-    let { metadata, content } = readMDXFile(path.join(dir, file));
-    let slug = path.basename(file, path.extname(file));
-
-    return {
-      metadata,
-      slug,
-      content,
-    };
-  });
-}
-
-export function getPosts() {
-  return getMDXData(path.join(process.cwd(), "posts"));
-}
-
-export function formatDate(date: string, includeRelative = false) {
-  let currentDate = new Date();
-  if (!date.includes("T")) {
-    date = `${date}T00:00:00`;
-  }
-  let targetDate = new Date(date);
-
-  let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
-  let monthsAgo = currentDate.getMonth() - targetDate.getMonth();
-  let daysAgo = currentDate.getDate() - targetDate.getDate();
-
-  let formattedDate = "";
-
-  if (yearsAgo > 0) {
-    formattedDate = `${yearsAgo}y ago`;
-  } else if (monthsAgo > 0) {
-    formattedDate = `${monthsAgo}mo ago`;
-  } else if (daysAgo > 0) {
-    formattedDate = `${daysAgo}d ago`;
-  } else {
-    formattedDate = "Today";
+  const result = frontmatterSchema.safeParse(data)
+  if (!result.success) {
+    throw new Error(`${filePath}: Invalid frontmatter\n${z.prettifyError(result.error)}`)
   }
 
-  let fullDate = targetDate.toLocaleString("en-us", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  return { slug, ...result.data }
+}
 
-  if (!includeRelative) {
-    return fullDate;
+export async function getAllSlugs(): Promise<string[]> {
+  const files = await readdir(POSTS_DIR)
+  return files
+    .filter((file) => file.endsWith(MDX_EXTENSION))
+    .map((file) => path.basename(file, MDX_EXTENSION))
+}
+
+export async function getAllPosts(): Promise<PostMetadata[]> {
+  const slugs = await getAllSlugs()
+  const posts = await Promise.all(slugs.map(readMetadata))
+  return posts.sort(
+    (a, b) => b.date.getTime() - a.date.getTime() || a.slug.localeCompare(b.slug)
+  )
+}
+
+export const getPost = cache(async (
+  slug: string
+): Promise<{ meta: PostMetadata; Content: ComponentType } | null> => {
+  const slugs = await getAllSlugs()
+  if (!slugs.includes(slug)) {
+    return null
   }
 
-  return `${fullDate} (${formattedDate})`;
-}
+  const [meta, { default: Content }] = await Promise.all([
+    readMetadata(slug),
+    import(`@/content/blog/${slug}.mdx`),
+  ])
+  return { meta, Content }
+})

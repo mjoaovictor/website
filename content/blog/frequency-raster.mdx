@@ -1,13 +1,12 @@
 ---
 title: "Frequency Raster"
-publishedAt: "2025-11-23"
-summary: "An explanation of Frequency Raster in 5G NR, including how NR-ARFCN is calculated."
-authors: João Victor
+description: "An explanation of Frequency Raster in 5G NR, including how NR-ARFCN is calculated."
+date: 2025-11-23
 ---
 
 In 5G NR, the **Frequency Raster** defines the set of permitted center frequencies for RF channels. Unlike LTE's fixed 100 kHz raster, 5G NR utilizes a more flexible grid to accommodate a wider spectrum range.
 
-## 1. Global Frequency Raster (NR-ARFCN)
+## Global Frequency Raster (NR-ARFCN)
 
 The **NR-ARFCN** (New Radio Absolute Radio Frequency Channel Number) maps every possible frequency to a unique integer. Per **[3GPP TS 38.104](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3202)**, the relationship between the frequency ($F_{\text{REF}}$) and the NR-ARFCN ($N_{\text{REF}}$) is defined by:
 
@@ -29,7 +28,7 @@ $$
 | 3 — 24.25 GHz | 15 kHz | 3000 | 600000 | 600000 — 2016666 |
 | 24.25 — 100 GHz | 60 kHz | 24250.08 | 2016667 | 2016667 — 3279165 |
 
-## 2. Channel Raster
+## Channel Raster
 
 The **Channel Raster** is a band-specific subset of the global grid. While the global grid defines what is *physically possible*, the Channel Raster defines what is *allowed* for a specific operating band (e.g., n78).
 
@@ -45,10 +44,13 @@ $$
 ### Off-Raster Scenarios
 An **off-raster** frequency exists on the Global Raster ($N_{\text{REF}}$ is an integer) but does not align with the band-specific step. The UE will not typically scan for carriers on these positions during initial cell search.
 
-> **Example: Band n1 ($\Delta F_{\text{Raster}}$ = 100 kHz / Step Size = 20)**
-> *   1920.00 MHz ($N_{\text{REF}} = 384000$): Valid. It aligns with the 100 kHz grid.
-> *   1920.05 MHz ($N_{\text{REF}} = 384010$): Off-Raster. Although it is a valid NR-ARFCN, it cannot be used as a center frequency for band n1.
-> *   The next valid NR-ARFCN for band n1 is $\text{384000 + 20 = 384020 (1920.10 MHz)}$.
+<Callout>
+**Example: Band n1 ($\Delta F_{\text{Raster}}$ = 100 kHz / Step Size = 20)**
+
+*   1920.00 MHz ($N_{\text{REF}} = 384000$): Valid. It aligns with the 100 kHz grid.
+*   1920.05 MHz ($N_{\text{REF}} = 384010$): Off-Raster. Although it is a valid NR-ARFCN, it cannot be used as a center frequency for band n1.
+*   The next valid NR-ARFCN for band n1 is $\text{384000 + 20 = 384020 (1920.10 MHz)}$.
+</Callout>
 
 Try the conversion yourself in the [5G NR-ARFCN Calculator](/tools/5g-nr-arfcn-calculator).
 

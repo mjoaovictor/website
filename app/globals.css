@@ -65,7 +65,7 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: #3183d8;
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
@@ -99,7 +99,7 @@
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: #3183d8;
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -136,39 +136,25 @@
   }
 }
 
-.prose p {
-  @apply my-4 text-neutral-600 leading-relaxed dark:text-neutral-400;
+/* prose-invert ships a cool gray body color; point it at the theme foreground. */
+.dark .prose {
+  --tw-prose-invert-body: var(--foreground);
 }
 
-.prose h1 {
-  @apply text-2xl font-medium tracking-tighter mt-6 mb-2;
+/* rehype-pretty-code emits both themes as CSS variables; the .dark class picks one. */
+[data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-light);
 }
 
-.prose h2 {
-  @apply text-xl font-medium tracking-tighter mt-6 mb-2;
+.dark [data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-dark);
 }
 
-.prose h3 {
-  @apply text-lg font-medium tracking-tighter mt-6 mb-2;
+[data-rehype-pretty-code-figure] [data-line] {
+  padding-inline: 1rem;
 }
 
-.prose table {
-  @apply my-4;
-}
-
-.prose mark {
-  @apply bg-transparent text-inherit px-0.5 box-decoration-clone;
-  background-image: linear-gradient(to bottom, transparent 40%, #67e8f9 40%);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
-
-.dark .prose mark {
-  background-image: linear-gradient(to bottom, transparent 40%, #0e7490 40%);
-  @apply text-white;
-}
-
-/* Headline marker: same bar as `.prose mark`, drawn left to right once on load. */
+/* Headline marker: a highlighter bar drawn left to right once on load. */
 .marker-sweep {
   background-image: linear-gradient(to bottom, transparent 65%, #67e8f9 65%);
   background-repeat: no-repeat;
@@ -193,22 +179,21 @@
   }
 }
 
-.prose .katex-display {
+/* Wide equations scroll in place instead of widening the page on mobile.
+   Scrolling clips overflow, so padding keeps fraction denominators and
+   descenders that poke below KaTeX's line box from being cut. */
+.katex-display {
+  padding-block: 0.3em;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) transparent;
 }
 
-.dark .prose .katex-display {
+.dark .katex-display {
   scrollbar-color: var(--color-neutral-700) transparent;
 }
 
-.katex-display {
-  @apply my-8! mx-0!;
-}
-
 .katex {
-  font-size: 1em !important;
+  font-size: 1.1em !important;
 }

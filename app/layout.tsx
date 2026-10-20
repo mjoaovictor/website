@@ -6,9 +6,9 @@ import "katex/dist/katex.min.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/lib/site-config";
 import { geistSans } from "@/lib/fonts";
+import { Header } from "@/components/header";
 
 // JSON-LD: Semantic SEO
 const jsonLd = {
@@ -115,7 +115,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
+          <Header />
           <div className="flex flex-col max-w-3xl min-h-[calc(100vh-3.5rem)] px-4 pb-4 mx-auto">
             <main id="main" className="flex-1 min-w-0 py-8">
               {children}

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/site-config";
 import Link from "next/link";
+import { JsonLd } from "@/components/json-ld";
 import { NrArfcnCalculator } from "@/components/nr-arfcn-calculator";
 import { geistMono } from "@/lib/fonts";
+import { pageMetadata } from "@/lib/seo";
 
 const UPDATES = [
   {
@@ -14,90 +16,61 @@ const UPDATES = [
 const TITLE = "5G NR-ARFCN Calculator";
 const DESCRIPTION = "Convert between NR-ARFCN and Frequency (MHz) based on 3GPP TS 38.104.";
 
-// JSON-LD: Semantic SEO
-const jsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: TITLE,
-    applicationCategory: "UtilitiesApplication",
-    operatingSystem: "Any",
-    browserRequirements: "Requires JavaScript",
-    author: {
-      "@type": "Person",
-      name: siteConfig.author.fullName
-    },
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
-    description: DESCRIPTION,
-    url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-					"@type": "ListItem",
-					position: 1,
-					name: "Home",
-					item: siteConfig.url,
-				},
-				{
-					"@type": "ListItem",
-					position: 2,
-					name: "Tools",
-					item: `${siteConfig.url}/tools`,
-				},
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: TITLE,
-        item: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
-      },
-    ],
-  },
-];
+const PATH = "/tools/5g-nr-arfcn-calculator";
+const url = `${siteConfig.url}${PATH}`;
 
-const ogImage = `/og?title=${encodeURIComponent(TITLE)}`;
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: TITLE,
   description: DESCRIPTION,
-  alternates: {
-    canonical: "/tools/5g-nr-arfcn-calculator",
-  },
-  keywords: [
-    "5g nr",
-    "nr-arfcn calculator",
-    "frequency converter",
-    "3gpp ts 38.104",
-    "global frequency raster",
-    "telecommunications",
-  ],
-  openGraph: {
-    title: TITLE,
-    description: DESCRIPTION,
-    url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator`,
-    type: "website",
-    images: [{ url: ogImage }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-    images: [ogImage],
-  },
-};
+  path: PATH,
+});
 
 export default function Page() {
   return (
     <section className={geistMono.variable}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <JsonLd
+        data={{
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              name: TITLE,
+              applicationCategory: "UtilitiesApplication",
+              operatingSystem: "Any",
+              browserRequirements: "Requires JavaScript",
+              author: { "@id": siteConfig.personId },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+              description: DESCRIPTION,
+              url,
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: siteConfig.url
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Tools",
+                  item: `${siteConfig.url}/tools`
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: TITLE,
+                  item: url
+                },
+              ],
+            },
+          ],
+        }}
       />
       <div className="mb-8 space-y-2">
         <h1 className="text-2xl font-semibold tracking-tighter">

@@ -1,77 +1,35 @@
-"use client";
+import Link from "next/link"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { siteConfig } from "@/lib/site-config"
 
-import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-import { AnimatedBackground } from "./animated-background";
-
-const THEMES = [
-  {
-    label: "Light",
-    id: "light",
-    icon: SunIcon,
-  },
-  {
-    label: "Dark",
-    id: "dark",
-    icon: MoonIcon,
-  },
-  {
-    label: "System",
-    id: "system",
-    icon: MonitorIcon,
-  },
-] as const;
-
-function ThemeSwitch() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <div className="h-8 w-[100px]" />;
-  }
-
-  return (
-    <AnimatedBackground
-      className="pointer-events-none rounded-lg bg-zinc-100 dark:bg-zinc-900"
-      defaultValue={theme}
-      transition={{
-        type: "spring",
-        bounce: 0,
-        duration: 0.2,
-      }}
-      enableHover={false}
-      onValueChange={(id) => {
-        setTheme(id as string);
-      }}
-    >
-      {THEMES.map((item) => {
-        return (
-          <button
-            key={item.id}
-            data-id={item.id}
-            type="button"
-            aria-label={`switch to ${item.label} theme`}
-            className="inline-flex h-8 w-8 items-center justify-center text-zinc-600 data-[checked=true]:text-zinc-900 dark:text-zinc-400 dark:data-[checked=true]:text-zinc-100"
-          >
-            <item.icon className="h-4 w-4" />
-          </button>
-        );
-      })}
-    </AnimatedBackground>
-  );
-}
+const linkClassName =
+  "inline-flex min-h-11 items-center px-3 hover:text-foreground"
 
 export function Footer() {
   return (
-    <footer className="border-zinc-100 border-t py-4 dark:border-zinc-900">
-      <div className="flex items-center justify-end">
-        <ThemeSwitch />
+    <footer className="mt-8">
+      <div className="flex flex-wrap items-center justify-between max-w-3xl gap-2 p-4 mx-auto text-sm tracking-tight text-muted-foreground">
+        <nav className="flex -ml-3">
+          {Object.entries(siteConfig.socials).map(([label, href]) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="me noopener noreferrer"
+              className={linkClassName}
+            >
+              {label}
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          ))}
+        </nav>
+        <div className="flex items-center gap-1">
+          <Link href="/privacy" className={linkClassName}>
+            Privacy
+          </Link>
+          <ThemeToggle />
+        </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -6,32 +6,10 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/footer";
 import { siteConfig } from "@/lib/site-config";
+import { openGraphBase } from "@/lib/seo";
 import { geistSans } from "@/lib/fonts";
 import { Header } from "@/components/header";
-
-// JSON-LD: Semantic SEO
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "@id": siteConfig.personId,
-  name: siteConfig.author.fullName,
-  alternateName: [
-    "João Victor",
-    "mjoaovictor"
-  ],
-  url: siteConfig.url,
-  image: `${siteConfig.url}/opengraph-image`,
-  jobTitle: "Telecommunications Engineer",
-  knowsAbout: [
-    "Software Engineering",
-    "Telecommunications",
-    "5G"
-  ],
-  sameAs: [
-    "https://github.com/mjoaovictor",
-    "https://linkedin.com/in/mjoaovictor",
-  ],
-};
+import { JsonLd } from "@/components/json-ld";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -49,45 +27,34 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: [
-    "software engineer",
-    "telecommunications",
-    "5g",
-    "developer",
-    "blog",
-  ],
-  authors: [{ name: siteConfig.author.name, url: siteConfig.url }],
-  creator: siteConfig.author.name,
+  // Feed discovery only; each page sets its own canonical
   alternates: {
-    canonical: "/",
     types: {
       "application/rss+xml": [{ url: "/rss.xml", title: "RSS" }],
     },
   },
-  openGraph: {
-    title: siteConfig.name,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.domain,
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteConfig.name,
-    description: siteConfig.description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+  openGraph: openGraphBase,
+  twitter: { card: "summary_large_image" },
+};
+
+const jsonLd = {
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": siteConfig.personId,
+      name: siteConfig.author,
+      alternateName: siteConfig.name,
+      url: siteConfig.url,
+      sameAs: Object.values(siteConfig.socials),
     },
-  },
+    {
+      "@type": "WebSite",
+      "@id": `${siteConfig.url}/#website`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      publisher: { "@id": siteConfig.personId },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -100,14 +67,10 @@ export default function RootLayout({
       <body
         className={cn(
           geistSans.variable,
-          "bg-background font-sans tracking-tight antialiased",
+          "flex flex-col min-h-dvh bg-background font-sans tracking-tight antialiased",
         )}
       >
-        {/* Semantic Data Injection */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <JsonLd data={jsonLd} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -115,12 +78,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <div className="flex flex-col max-w-3xl min-h-[calc(100vh-3.5rem)] px-4 pb-4 mx-auto">
-            <main id="main" className="flex-1 min-w-0 py-8">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <main id="main" className="flex-1 w-full min-w-0 max-w-3xl px-4 py-8 mx-auto">
+            {children}
+          </main>
+          <Footer />
         </ThemeProvider>
         {/* Vercel Analytics */}
         <Analytics />

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/json-ld";
+import { pageMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 import { Briefcase, GraduationCap } from "lucide-react";
 import { geistMono } from "@/lib/fonts";
@@ -58,33 +60,12 @@ const EDUCATION = [
   },
 ] as const;
 
-const DESCRIPTION = "Professional experience and education timeline of João Victor.";
-
-// JSON-LD: Semantic SEO
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfilePage",
-  headline: "Career — João Victor",
-  description: DESCRIPTION,
-  url: `${siteConfig.url}/career`,
-  mainEntity: {
-    "@id": siteConfig.personId,
-  },
-};
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Career",
-  description: DESCRIPTION,
-  alternates: {
-    canonical: "/career",
-  },
-  openGraph: {
-    title: "Career | mjoaovictor",
-    description: DESCRIPTION,
-    url: "/career",
-    type: "profile",
-  },
-};
+  description: "Professional experience and education timeline of João Victor.",
+  path: "/career",
+  openGraph: { type: "profile" },
+});
 
 function TimelineList({
   items,
@@ -144,11 +125,28 @@ function TimelineList({
 }
 
 export default function Page() {
+  const current = EXPERIENCE.find((entry) => entry.period.endsWith("Present"));
+
   return (
     <section className={cn(geistMono.variable, "space-y-8")}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      {/* Same @id as the layout's Person, so search engines merge these fields into it */}
+      <JsonLd
+        data={{
+          "@type": "ProfilePage",
+          url: `${siteConfig.url}/career`,
+          mainEntity: {
+            "@id": siteConfig.personId,
+            jobTitle: current?.role,
+            worksFor: current && {
+              "@type": "Organization",
+              name: current.company
+            },
+            alumniOf: EDUCATION.map((entry) => ({
+              "@type": "EducationalOrganization",
+              name: entry.institution,
+            })),
+          },
+        }}
       />
       <h1 className="text-2xl font-semibold tracking-tighter">
         Career

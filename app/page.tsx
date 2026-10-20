@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
-import { siteConfig } from "@/lib/site-config";
 import { TOOLS } from "@/lib/tools";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const LINKS = [
   {
@@ -19,27 +23,11 @@ const LATEST_POSTS_COUNT = 3;
 
 const LINK_STYLE = "text-neutral-900 hover:underline hover:underline-offset-4 dark:text-neutral-100";
 
-// JSON-LD: Semantic SEO
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "João Victor",
-  url: siteConfig.url,
-  publisher: {
-    "@id": siteConfig.personId,
-  },
-};
-
 export default async function Page() {
   const posts = (await getAllPosts()).slice(0, LATEST_POSTS_COUNT);
 
   return (
     <div className="space-y-16">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <section className="space-y-4">
         {/* text-balance: evens out line lengths so the headline does not end on a short line. */}
         <h1 className="text-balance font-semibold text-3xl leading-[1.2] sm:text-4xl">

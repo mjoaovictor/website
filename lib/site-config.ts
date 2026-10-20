@@ -1,14 +1,14 @@
-const url = "https://mjoaovictor.dev";
+const url = "https://mjoaovictor.dev"
 
 export const siteConfig = {
   url,
   domain: "mjoaovictor.dev",
   name: "mjoaovictor",
-  description: "My personal website built with Next.js and TypeScript.",
-  author: {
-    name: "João Victor",
-    fullName: "João Victor Menino E Silva",
-  },
-  // Schema.org Person node referenced by JSON-LD across pages
+  description: "Hey, I’m João! This site is my playground for tools, automation, and whatever I'm learning next.",
+  author: "João Victor Menino E Silva",
   personId: `${url}/#person`,
-} as const;
+  socials: {
+    GitHub: "https://github.com/mjoaovictor",
+    LinkedIn: "https://www.linkedin.com/in/mjoaovictor",
+  },
+}

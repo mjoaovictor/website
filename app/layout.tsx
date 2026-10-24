@@ -1,14 +1,14 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { ThemeProvider } from "next-themes";
-import { Footer } from "@/components/footer";
 import { siteConfig } from "@/lib/site-config";
 import { openGraphBase } from "@/lib/seo";
+import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { JsonLd } from "@/components/json-ld";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,15 +20,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
-  width: "device-width",
-  initialScale: 1,
-};
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
@@ -36,12 +27,6 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  // Feed discovery only; each page sets its own canonical
-  alternates: {
-    types: {
-      "application/rss+xml": [{ url: "/rss.xml", title: "RSS" }],
-    },
-  },
   openGraph: openGraphBase,
   twitter: { card: "summary_large_image" },
 };
@@ -54,6 +39,8 @@ const jsonLd = {
       name: siteConfig.author,
       alternateName: siteConfig.name,
       url: siteConfig.url,
+      // jobTitle, worksFor and alumniOf are merged in from /career by @id
+      knowsAbout: ["Software Engineering", "Telecommunications", "5G"],
       sameAs: Object.values(siteConfig.socials),
     },
     {
@@ -66,19 +53,14 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable}`}
-      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className="flex flex-col min-h-dvh bg-background tracking-tight antialiased">
+      <body className="flex flex-col min-h-dvh">
         <JsonLd data={jsonLd} />
         <ThemeProvider
           attribute="class"
@@ -87,14 +69,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <main id="main" className="flex-1 w-full min-w-0 max-w-3xl px-4 py-8 mx-auto">
+          <main id="main" className="flex-1 w-full max-w-3xl px-4 mx-auto">
             {children}
           </main>
           <Footer />
         </ThemeProvider>
-        {/* Vercel Analytics */}
         <Analytics />
-        {/* Speed Insights (Performance/Core Web Vitals) */}
         <SpeedInsights />
       </body>
     </html>

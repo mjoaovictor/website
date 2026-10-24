@@ -73,3 +73,9 @@ TypeScript · Next.js · TailwindCSS · shadcn/ui · Vercel
 
 ## Lessons
 <!-- Newest on top. Delete what no longer applies. -->
+- When adding a site accent color, set shadcn's `--accent` instead of creating a new token
+- When styling a non-`Button` element with `buttonVariants`, wrap it in `cn()` so conflicting classes (e.g. `border-transparent` vs `border-border`) merge like they do in `Button`
+- When writing a description for a section index (e.g. `/tools`), describe the section's intended scope, not only what it holds today
+- When an input becomes invalid, clear the fields and results derived from it instead of keeping the last valid values on screen
+- When a heading or short text has a one-letter word (e.g. "I"), bind it to the next word with `&nbsp;` so it never ends a line alone
+- When asked what causes a behavior, explain the cause without assuming the behavior is unwanted or proposing to remove it

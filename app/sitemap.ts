@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getAllPosts } from "@/lib/blog"
 import { siteConfig } from "@/lib/site-config"
-import { TOOLS } from "@/lib/tools"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getAllPosts()
@@ -12,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteConfig.url}/career` },
     { url: `${siteConfig.url}/privacy` },
     { url: `${siteConfig.url}/tools` },
-    ...TOOLS.map(({ href }) => ({ url: `${siteConfig.url}${href}` })),
+    { url: `${siteConfig.url}/tools/5g-nr-arfcn-calculator` },
     ...posts.map(({ slug, date }) => ({
       url: `${siteConfig.url}/blog/${slug}`,
       lastModified: date,

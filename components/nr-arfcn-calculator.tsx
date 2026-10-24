@@ -1,15 +1,20 @@
-"use client";
+"use client"
 
-import React, { useMemo, useState } from "react";
+import { useId, useState } from "react"
+import { CircleCheck, CircleDashed } from "lucide-react"
 import {
   arfcnToFrequency,
+  findBands,
   frequencyToArfcn,
-  getBandsForFrequency,
-} from "@/lib/nr-arfcn/3gpp";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+  getGlobalRasterParams,
+  MAX_ARFCN,
+  MAX_FREQUENCY_MHZ,
+  MIN_ARFCN,
+  MIN_FREQUENCY_MHZ,
+} from "nr-arfcn"
+import { cn } from "cn"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -17,187 +22,297 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/table"
 
-const linkStyles: Record<string, string> = {
-  "UL": "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/20",
-  "DL": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/20",
-  "UL/DL": "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-500/20",
-};
+type Field = "arfcn" | "frequency"
 
-export function NrArfcnCalculator() {
-  const [inputMode, setInputMode] = useState<"arfcn" | "freq">("arfcn");
-  const [rawValue, setRawValue] = useState("620000");
+type Carrier = {
+  arfcn: number
+  frequencyMhz: number
+  // False when a typed frequency fell between raster points and was snapped to the nearest one
+  exact: boolean
+}
 
-  const { arfcnStr, freqStr, matches, error } = useMemo(() => {
-    const val = Number(rawValue);
-    if (!rawValue || isNaN(val)) {
+type CalculatorState = {
+  field: Field
+  text: string
+  error: string | null
+  carrier: Carrier | null
+}
+
+// Bands whose applicable NR-ARFCN are further restricted per channel bandwidth (Table 5.4.2.3-1, notes 1–3)
+const BANDS_WITH_BANDWIDTH_NOTES = new Set(["n46", "n96", "n102"])
+
+const integer = new Intl.NumberFormat("en-US")
+
+const ARFCN_RANGE = `${integer.format(MIN_ARFCN)} to ${integer.format(MAX_ARFCN)}`
+const FREQUENCY_RANGE = `${integer.format(MIN_FREQUENCY_MHZ)} to ${integer.format(MAX_FREQUENCY_MHZ)} MHz`
+
+// The finest raster is 5 kHz, so three decimals are exact; keep at least two so values read as MHz
+function formatMhz(mhz: number) {
+  return mhz.toFixed(3).replace(/0$/, "")
+}
+
+function parse(field: Field, text: string): Pick<CalculatorState, "error" | "carrier"> {
+  // Thousands separators are accepted for NR-ARFCN only; in a frequency a comma could be a decimal mark
+  const value = text.trim().replace(field === "arfcn" ? /[\s,_]/g : /\s/g, "")
+  if (value === "") {
+    return { error: null, carrier: null }
+  }
+
+  try {
+    if (field === "arfcn") {
+      if (!/^\d+$/.test(value)) {
+        throw new RangeError()
+      }
+      const arfcn = Number(value)
       return {
-        arfcnStr: inputMode === "arfcn" ? rawValue : "",
-        freqStr: inputMode === "freq" ? rawValue : "",
-        matches: [],
-        error: rawValue ? "Enter a valid number." : null,
-      };
-    }
-
-    let arfcn: number | null = null;
-    let freq: number | null = null;
-
-    if (inputMode === "arfcn") {
-      arfcn = val;
-      freq = arfcnToFrequency(arfcn);
-      if (freq === null) {
-        return {
-          arfcnStr: rawValue,
-          freqStr: "",
-          matches: [],
-          error: "NR-ARFCN out of valid range (0 to 3,279,165).",
-        };
-      }
-    } else {
-      freq = val;
-      arfcn = frequencyToArfcn(freq);
-      if (arfcn === null) {
-        return {
-          arfcnStr: "",
-          freqStr: rawValue,
-          matches: [],
-          error: "Frequency out of valid range (0 to 100,000 MHz).",
-        };
+        error: null,
+        carrier: {
+          arfcn,
+          frequencyMhz: arfcnToFrequency(arfcn),
+          exact: true
+        }
       }
     }
 
-    // get bands based on the calculated frequency and (optional) arfcn
-    const foundMatches = getBandsForFrequency(freq, arfcn ?? undefined);
+    if (!/^\d+(\.\d+)?$/.test(value)) {
+      throw new RangeError()
+    }
 
+    const { arfcn, exact } = frequencyToArfcn(Number(value))
     return {
-      arfcnStr: inputMode === "arfcn" ? rawValue : (arfcn?.toString() ?? ""),
-      freqStr: inputMode === "freq" ? rawValue : (freq?.toFixed(2) ?? ""),
-      matches: foundMatches,
       error: null,
-    };
-  }, [inputMode, rawValue]);
+      carrier: {
+        arfcn,
+        frequencyMhz: arfcnToFrequency(arfcn),
+        exact
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof RangeError)) {
+      throw error
+    }
+    return {
+      error: field === "arfcn"
+        ? `Invalid NR-ARFCN. Use ${ARFCN_RANGE}`
+        : `Invalid Frequency. Use ${FREQUENCY_RANGE}`,
+      carrier: null,
+    }
+  }
+}
+
+function Formula({ arfcn }: { arfcn: number }) {
+  const { deltaFGlobalKhz, fRefOffsetMhz, nRefOffset, firstArfcn, lastArfcn } = getGlobalRasterParams(arfcn)
+  const parameters = [
+    ["ΔF", "Global", `${deltaFGlobalKhz} kHz`],
+    ["F", "REF-Offs", `${fRefOffsetMhz} MHz`],
+    ["N", "REF-Offs", String(nRefOffset)],
+    ["N", "REF", `${firstArfcn} to ${lastArfcn}`],
+  ] as const
 
   return (
-    <Card>
-      <CardContent>
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* arfcn input */}
-          <div className="space-y-3">
-            <Label>NR-ARFCN</Label>
-            <Input
-              type="number"
-              min="0"
-              placeholder="e.g. 620000"
-              value={arfcnStr}
-              aria-invalid={inputMode === "arfcn" && !!error}
-              onChange={(e) => {
-                setInputMode("arfcn");
-                setRawValue(e.target.value);
-              }}
-            />
-            <p className="text-neutral-500 text-xs tracking-wider dark:text-neutral-400">
-              Valid Range: 0 to 3,279,165
-            </p>
+    <details className="mt-8 group">
+      <summary className="py-3 text-sm cursor-pointer select-none text-muted-foreground hover:text-foreground">
+        <span className="group-open:hidden">Show</span>
+        <span className="hidden group-open:inline">Hide</span> Formula
+      </summary>
+      <div className="grid grid-cols-[auto_1fr] gap-x-2 overflow-x-auto pt-3 font-mono text-sm leading-7 whitespace-nowrap">
+        <span className="font-sans">F<sub>REF</sub></span>
+        <span className="font-sans text-muted-foreground">= F<sub>REF-Offs</sub> + ΔF<sub>Global</sub> × (N<sub>REF</sub> − N<sub>REF-Offs</sub>)
+        </span>
+        <span className="col-start-2">
+          <span className="text-muted-foreground">= </span>
+          {fRefOffsetMhz} + {deltaFGlobalKhz / 1000} × ({arfcn} − {nRefOffset})
+        </span>
+        <span className="col-start-2 text-base font-semibold">
+          <span className="font-normal text-muted-foreground">= </span>
+          {formatMhz(arfcnToFrequency(arfcn))} MHz
+        </span>
+      </div>
+      <dl className="flex flex-wrap pb-6 mt-4 text-xs gap-x-5 gap-y-1 text-muted-foreground">
+        {parameters.map(([symbol, subscript, value]) => (
+          <div key={`${symbol}${subscript}`} className="flex gap-1.5">
+            <dt>{symbol}<sub>{subscript}</sub></dt>
+            <dd className="font-mono text-foreground">{value}</dd>
           </div>
+        ))}
+      </dl>
+    </details>
+  )
+}
 
-          {/* freq input */}
-          <div className="space-y-3">
-            <Label>Frequency (MHz)</Label>
-            <Input
-              type="number"
-              min="0"
-              placeholder="e.g. 3300"
-              value={freqStr}
-              aria-invalid={inputMode === "freq" && !!error}
-              onChange={(e) => {
-                setInputMode("freq");
-                setRawValue(e.target.value);
-              }}
-            />
-          </div>
-        </div>
+function Bands({ arfcn }: { arfcn: number | null }) {
+  const matches = arfcn === null ? [] : findBands(arfcn)
+  const hasBandwidthNotes = matches.some(({ band }) => BANDS_WITH_BANDWIDTH_NOTES.has(band))
 
-        {error && (
-          <p className="mt-3 text-red-600 text-sm dark:text-red-400" role="alert">
-            {error}
+  return (
+    <section aria-labelledby="bands-heading" className="mt-8">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 id="bands-heading" className="text-xl font-semibold tracking-tight">
+          Bands
+        </h2>
+        {arfcn !== null && (
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {matches.length === 1 ? "1 match" : `${matches.length} matches`}
           </p>
         )}
+      </div>
 
-        {/* table section */}
-        <div className="mt-6 space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="font-medium">Bands</h3>
-            <span className="text-neutral-500 text-xs tracking-wider dark:text-neutral-400">
-              Found {matches.length} matching items.
-            </span>
-          </div>
+      {matches.length === 0 ? (
+        <p className="py-6 mt-3 text-sm border-t text-muted-foreground">
+          {arfcn === null
+            ? "Enter an NR-ARFCN or a frequency to see the NR operating bands that include it."
+            : `No NR operating band includes NR-ARFCN ${arfcn}.`}
+        </p>
+      ) : (
+        <Table className="mt-3">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="pl-0">Band</TableHead>
+              <TableHead>Duplex Mode</TableHead>
+              <TableHead>
+                ΔF<sub>Raster</sub> <span className="font-normal text-muted-foreground">(kHz)</span>
+              </TableHead>
+              <TableHead>
+                Step <span className="font-normal text-muted-foreground">(N<sub>REF</sub>)</span>
+              </TableHead>
+              <TableHead className="pr-0">Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {matches.map((match) => (
+              <TableRow
+                key={`${match.band}-${match.rasterKhz ?? match.channelBandwidthMhz}-${match.step}-${match.direction}`}
+                className="h-12"
+              >
+                <TableCell className="pl-0 font-mono font-bold">
+                  {match.band}
+                  {match.channelBandwidthMhz !== undefined && (
+                    <span className="ml-2 font-sans text-xs font-normal text-muted-foreground">
+                      {match.channelBandwidthMhz} MHz BW
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center gap-2">
+                    {match.duplexMode}
+                    <Badge variant="secondary" className="font-mono">{match.direction}</Badge>
+                  </span>
+                </TableCell>
+                <TableCell className="font-mono tabular-nums">
+                  {match.rasterKhz ?? (
+                    <span className="text-muted-foreground">
+                      —<span className="sr-only">defined per channel bandwidth</span>
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell className="font-mono tabular-nums">{match.step}</TableCell>
+                <TableCell className="pr-0">
+                  {match.onRaster ? (
+                    <Badge className="bg-accent/12 text-foreground">
+                      <CircleCheck aria-hidden className="text-accent" />
+                      On Raster
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-muted-foreground">
+                      <CircleDashed aria-hidden />
+                      Off Raster
+                    </Badge>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
-          {matches.length > 0 ? (
-            <div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Band</TableHead>
-                    <TableHead>Duplex Mode</TableHead>
-                    <TableHead>ΔF Raster <span className="text-neutral-400 text-xs">(kHz)</span></TableHead>
-                    <TableHead>Step <span className="text-neutral-400 text-xs">(Nref)</span></TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
+      {hasBandwidthNotes && (
+        <p className="mt-4 text-xs text-muted-foreground">
+          n46, n96 and n102 further restrict NR-ARFCN per channel bandwidth, which isn&apos;t checked here.
+        </p>
+      )}
+    </section>
+  )
+}
 
-                <TableBody>
-                  {matches.map((m, idx) => (
-                    <TableRow key={`${m.bandName}-${m.matchedLink}-${idx}`}>
-                      <TableCell className="font-bold">{m.bandName}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span>{m.duplexMode}</span>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "whitespace-nowrap shadow-none",
-                              linkStyles[m.matchedLink] || "bg-gray-100",
-                            )}
-                          >
-                            {m.matchedLink}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{m.frequencyRaster ?? "—"}</TableCell>
-                      <TableCell className="font-mono text-sm">{m.rasterStep ?? "—"}</TableCell>
-                      <TableCell>
-                        {!m.rasterAvailable ? (
-                          <span className="text-neutral-400 text-xs">
-                            Raster data not available.
-                          </span>
-                        ) : m.isRasterValid ? (
-                          <Badge className="border-emerald-200 bg-emerald-100 text-emerald-700 shadow-none hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-400">
-                            Valid Raster
-                          </Badge>
-                        ) : (
-                          <span className="text-neutral-400 text-xs">
-                            Off-Raster
-                          </span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="flex h-24 flex-col items-center justify-center rounded-xl border border-neutral-200 border-dashed bg-neutral-50/50 dark:border-neutral-800 dark:bg-transparent">
-              <p className="text-neutral-500 text-sm">
-                {freqStr
-                  ? "No matching bands found."
-                  : "Enter value to see bands."}
+export function NrArfcnCalculator({ initialArfcn }: { initialArfcn: string }) {
+  const id = useId()
+  const [state, setState] = useState<CalculatorState>(() => ({
+    field: "arfcn",
+    text: initialArfcn,
+    ...parse("arfcn", initialArfcn),
+  }))
+
+  function handleChange(field: Field, text: string) {
+    const parsed = parse(field, text)
+    setState({ field, text, ...parsed })
+    window.history.replaceState(null, "", parsed.carrier ? `?arfcn=${parsed.carrier.arfcn}` : "?")
+  }
+
+  const { field, text, error, carrier } = state
+  const arfcnText = field === "arfcn" ? text : carrier ? String(carrier.arfcn) : ""
+  const frequencyText = field === "frequency" ? text : carrier ? formatMhz(carrier.frequencyMhz) : ""
+  const isSnapped = field === "frequency" && carrier !== null && !carrier.exact && !error
+
+  const fields = [
+    {
+      field: "arfcn",
+      label: "NR-ARFCN",
+      value: arfcnText,
+      inputMode: "numeric",
+      hint: `Valid Range: ${ARFCN_RANGE}`,
+    },
+    {
+      field: "frequency",
+      label: "Frequency (MHz)",
+      value: frequencyText,
+      inputMode: "decimal",
+      hint: isSnapped && carrier
+        ? `Between Raster Points. Nearest: ${formatMhz(carrier.frequencyMhz)} MHz`
+        : `Valid Range: ${FREQUENCY_RANGE}`,
+    },
+  ] as const
+
+  return (
+    <div className="mt-8">
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr]">
+        {fields.map((input, index) => {
+          const hasError = error !== null && field === input.field
+          const messageId = `${id}-${input.field}-message`
+
+          return (
+            <div
+              key={input.field}
+              className={cn("flex flex-col gap-2", index === 1 && "sm:col-start-3")}
+            >
+              <label htmlFor={`${id}-${input.field}`} className="text-sm font-medium">
+                {input.label}
+              </label>
+              <Input
+                id={`${id}-${input.field}`}
+                value={input.value}
+                onChange={(event) => handleChange(input.field, event.target.value)}
+                inputMode={input.inputMode}
+                autoComplete="off"
+                spellCheck={false}
+                aria-invalid={hasError || undefined}
+                aria-describedby={messageId}
+                className="px-3 font-mono h-11"
+              />
+              <p
+                id={messageId}
+                className={cn("text-xs", hasError ? "text-destructive" : "text-muted-foreground")}
+              >
+                {hasError ? error : input.hint}
               </p>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+          )
+        })}
+      </div>
+
+      {carrier ? <Formula arfcn={carrier.arfcn} /> : null}
+      <Bands arfcn={carrier?.arfcn ?? null} />
+    </div>
+  )
 }

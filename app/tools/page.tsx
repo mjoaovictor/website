@@ -1,50 +1,38 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { JsonLd } from "@/components/json-ld";
-import { pageMetadata } from "@/lib/seo";
-import { siteConfig } from "@/lib/site-config";
-import { TOOLS } from "@/lib/tools";
+import type { Metadata } from "next"
+import Link from "next/link"
+import { pageMetadata } from "@/lib/seo"
+import { tools } from "@/lib/tools"
 
 export const metadata: Metadata = pageMetadata({
-	title: "Tools",
-	description: "Useful tools for telecommunications and software development.",
-	path: "/tools",
-});
+  title: "Tools",
+  description: "Tools for telecommunications and software development.",
+  path: "/tools",
+})
 
 export default function Page() {
-	return (
-		<section className="space-y-8">
-			<JsonLd
-				data={{
-					"@type": "ItemList",
-					itemListElement: TOOLS.map((tool, index) => ({
-						"@type": "ListItem",
-						position: index + 1,
-						name: tool.label,
-						description: tool.description,
-						url: `${siteConfig.url}${tool.href}`,
-					})),
-				}}
-			/>
-			<h1 className="font-semibold text-2xl tracking-tighter">
-				Tools
-			</h1>
-
-			<ul className="list-disc space-y-4 pl-5">
-				{TOOLS.map((tool) => (
-					<li key={tool.href} className="marker:text-neutral-400">
-						<Link
-							href={tool.href}
-							className="text-neutral-600 hover:text-neutral-900 hover:underline hover:underline-offset-4 dark:text-neutral-400 dark:hover:text-neutral-100"
-						>
-							{tool.label}
-						</Link>
-						<p className="mt-1 text-neutral-600 text-sm dark:text-neutral-400">
-							{tool.description}
-						</p>
-					</li>
-				))}
-			</ul>
-		</section>
-	);
+  return (
+    <div className="py-8">
+      <h1 className="text-3xl font-semibold tracking-tight">
+        Tools
+      </h1>
+      <p className="mt-2 text-muted-foreground">
+        Tools for telecommunications and software development.
+      </p>
+      <ul className="flex flex-col gap-8 py-8 mt-8 border-t">
+        {tools.map(({ href, title, description }) => (
+          <li key={href} className="relative">
+            <Link
+              href={href}
+              className="text-lg font-medium tracking-tight underline-offset-6 after:absolute after:inset-0 hover:underline"
+            >
+              {title}
+            </Link>
+            <p className="mt-1 max-w-prose text-muted-foreground">
+              {description}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }

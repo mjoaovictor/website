@@ -1,5 +1,5 @@
-import type { NextConfig } from "next";
-import createMDX from "@next/mdx";
+import type { NextConfig } from "next"
+import createMDX from "@next/mdx"
 
 const csp = [
   "default-src 'self'",
@@ -11,9 +11,25 @@ const csp = [
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-].join("; ");
+].join("; ")
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["192.168.0.*"],
+  // Removed Pages: send visitors and crawlers to the home page
+  async redirects() {
+    return [
+      {
+        source: "/tools/link-budget-calculator",
+        destination: "/",
+        permanent: true
+      },
+      {
+        source: "/blog/5g-link-budget",
+        destination: "/",
+        permanent: true
+      },
+    ]
+  },
   async headers() {
     return [
       {
@@ -33,7 +49,15 @@ const nextConfig: NextConfig = {
           { key: "Content-Security-Policy-Report-Only", value: csp },
         ],
       },
-    ];
+    ]
+  },
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
   },
 };
 
@@ -56,6 +80,6 @@ const withMDX = createMDX({
       ],
     ],
   },
-});
+})
 
-export default withMDX(nextConfig);
+export default withMDX(nextConfig)

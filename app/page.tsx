@@ -1,106 +1,101 @@
-import type { Metadata } from "next";
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
-import { TOOLS } from "@/lib/tools";
+import type { Metadata } from "next"
+import Link from "next/link"
+import { getAllPosts } from "@/lib/blog"
+import { tools } from "@/lib/tools"
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
-};
+}
 
-const LINKS = [
-  {
-    label: "linkedin",
-    href: "https://www.linkedin.com/in/mjoaovictor",
-  },
-  {
-    label: "github",
-    href: "https://github.com/mjoaovictor",
-  },
-] as const;
+const LATEST_POST_COUNT = 3
 
-const LATEST_POSTS_COUNT = 3;
+const rowLinkClass = "text-lg font-medium tracking-tight underline-offset-6 after:absolute after:inset-0 hover:underline"
 
-const LINK_STYLE = "text-neutral-900 hover:underline hover:underline-offset-4 dark:text-neutral-100";
+function Section({
+  title,
+  href,
+  linkLabel,
+  children,
+}: {
+  title: string
+  href: string
+  linkLabel: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="grid gap-4 border-t py-8 sm:grid-cols-[8rem_1fr]">
+      <h2 className="font-mono text-sm text-muted-foreground sm:pt-1.5">
+        {title}
+      </h2>
+      <div>
+        {children}
+        <Link
+          href={href}
+          className="inline-block mt-6 text-sm underline text-muted-foreground underline-offset-4 decoration-border hover:text-foreground hover:decoration-foreground"
+        >
+          {linkLabel}
+        </Link>
+      </div>
+    </section>
+  )
+}
 
 export default async function Page() {
-  const posts = (await getAllPosts()).slice(0, LATEST_POSTS_COUNT);
+  const posts = (await getAllPosts()).slice(0, LATEST_POST_COUNT)
 
   return (
-    <div className="space-y-16">
-      <section className="space-y-4">
-        {/* text-balance: evens out line lengths so the headline does not end on a short line. */}
-        <h1 className="text-balance font-semibold text-3xl leading-[1.2] sm:text-4xl">
-          Hey, I’m João! I&nbsp;<span className="marker-sweep">automate</span> and{" "}
-          <span className="marker-sweep">explain</span>{" "}
-          Telecom Engineering.
-        </h1>
-        {/* max-w-prose: caps lines at 65ch for readability.
-            text-pretty: avoids a lone word on the last line. */}
-        <p className="leading-[1.8] max-w-prose text-pretty text-neutral-600 dark:text-neutral-400">
-          I’m a Senior Software Analyst at the Eldorado Research Institute. This site is my playground for tools, automation, and whatever I'm learning next.
-        </p>
-      </section>
+    <div className="py-8 sm:py-16">
+      <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+        Hi, I&apos;m João. I&nbsp;automate and explain Telecom Engineering.
+      </h1>
+      <p className="mt-6 mb-16 text-lg max-w-prose text-muted-foreground">
+        This site is my playground for tools, automation, and whatever I&apos;m learning next.
+      </p>
 
-      <section className="space-y-4">
-        <h2 id="tools-heading" className="text-sm font-medium">
-          Tools
-        </h2>
-        <ul className="space-y-4">
-          {TOOLS.map((tool) => (
-            <li key={tool.href}>
-              <Link href={tool.href} className={LINK_STYLE}>
-                {tool.label}
+      <Section title="Tools" href="/tools" linkLabel="All Tools">
+        <ul className="flex flex-col gap-8">
+          {tools.map(({ href, title, description }) => (
+            <li key={href} className="relative">
+              <Link href={href} className={rowLinkClass}>
+                {title}
               </Link>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                {tool.description}
+              <p className="mt-1 max-w-prose text-muted-foreground">
+                {description}
               </p>
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
 
-      <section aria-labelledby="posts-heading" className="space-y-4">
-        <h2 id="posts-heading" className="text-sm font-medium">
-          Latest Posts
-        </h2>
-        <ul className="space-y-4">
-          {posts.map((post) => (
-            <li key={post.slug}>
-              <Link href={`/blog/${post.slug}`} className={LINK_STYLE}>
-                {post.title}
-              </Link>
-              <time
-                dateTime={post.date.toISOString()}
-                className="block mt-1 text-sm text-neutral-600 dark:text-neutral-400"
-              >
-                {post.date.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  timeZone: "UTC",
-                })}
-              </time>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <ul className="flex gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-        {LINKS.map((link) => (
-          <li key={link.label}>
-            <a
-              className="inline-flex items-center gap-1 group hover:text-neutral-900 dark:hover:text-neutral-100"
-              rel="noopener noreferrer"
-              target="_blank"
-              href={link.href}
-            >
-              {link.label}
-              <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
-          </li>
-        ))}
-      </ul>
+      {posts.length > 0 && (
+        <Section title="Blog" href="/blog" linkLabel="All Posts">
+          <ul className="flex flex-col gap-8">
+            {posts.map(({ slug, title, description, date }) => (
+              <li key={slug} className="relative">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                  <Link href={`/blog/${slug}`} className={rowLinkClass}>
+                    {title}
+                  </Link>
+                  <time
+                    dateTime={date.toISOString()}
+                    className="font-mono text-sm shrink-0 text-muted-foreground"
+                  >
+                    {date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "2-digit",
+                      year: "numeric",
+                      timeZone: "UTC",
+                    })}
+                  </time>
+                </div>
+                <p className="mt-1 max-w-prose text-muted-foreground">
+                  {description}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
     </div>
-  );
+  )
 }

@@ -2,7 +2,6 @@ const url = "https://mjoaovictor.dev"
 
 export const siteConfig = {
   url,
-  domain: "mjoaovictor.dev",
   name: "mjoaovictor",
   description: "Hey, I’m João! This site is my playground for tools, automation, and whatever I'm learning next.",
   author: "João Victor Menino E Silva",

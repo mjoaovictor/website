@@ -47,7 +47,7 @@ export default async function Page() {
                       </Link>
                       <time
                         dateTime={date.toISOString()}
-                        className="font-mono text-sm shrink-0 tabular-nums text-muted-foreground"
+                        className="font-mono text-sm shrink-0 text-muted-foreground"
                       >
                         {date.toLocaleDateString("en-US", {
                           month: "short",

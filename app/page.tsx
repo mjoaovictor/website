@@ -70,24 +70,11 @@ export default async function Page() {
       {posts.length > 0 && (
         <Section title="Blog" href="/blog" linkLabel="All Posts">
           <ul className="flex flex-col gap-8">
-            {posts.map(({ slug, title, description, date }) => (
+            {posts.map(({ slug, title, description }) => (
               <li key={slug} className="relative">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                  <Link href={`/blog/${slug}`} className={rowLinkClass}>
-                    {title}
-                  </Link>
-                  <time
-                    dateTime={date.toISOString()}
-                    className="font-mono text-sm shrink-0 text-muted-foreground"
-                  >
-                    {date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "2-digit",
-                      year: "numeric",
-                      timeZone: "UTC",
-                    })}
-                  </time>
-                </div>
+                <Link href={`/blog/${slug}`} className={rowLinkClass}>
+                  {title}
+                </Link>
                 <p className="mt-1 max-w-prose text-muted-foreground">
                   {description}
                 </p>

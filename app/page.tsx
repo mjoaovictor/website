@@ -45,10 +45,10 @@ export default async function Page() {
 
   return (
     <div className="py-8 sm:py-16">
-      <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+      <h1 className="text-4xl font-semibold leading-snug tracking-tight text-balance">
         Hi, I&apos;m João. I&nbsp;automate and explain Telecom Engineering.
       </h1>
-      <p className="mt-6 mb-16 text-lg max-w-prose text-muted-foreground">
+      <p className="mt-3 mb-16 max-w-prose text-muted-foreground">
         This site is my playground for tools, automation, and whatever I&apos;m learning next.
       </p>
 

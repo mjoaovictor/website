@@ -108,7 +108,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     path: `/blog/${slug}`,
     openGraph: {
       type: "article",
-      publishedTime: post.meta.date.toISOString()
+      publishedTime: post.meta.date.toISOString(),
+      images: [`/blog/${slug}/opengraph-image`],
     },
   })
 }

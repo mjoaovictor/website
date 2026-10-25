@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
-import { Download } from "lucide-react"
-import { buttonVariants } from "@/components/ui/button"
-import { cn } from "cn"
+// import { Download } from "lucide-react"
+// import { buttonVariants } from "@/components/ui/button"
+// import { cn } from "cn"
 import { JsonLd } from "@/components/json-ld"
 import { pageMetadata } from "@/lib/seo"
 import { siteConfig } from "@/lib/site-config"
@@ -176,6 +176,7 @@ export default function Page() {
             Where I&apos;ve been and what I built.
           </p>
         </div>
+        {/* Hidden for now.
         <a
           href="/resume.pdf"
           download="resume.pdf"
@@ -184,6 +185,7 @@ export default function Page() {
           <Download aria-hidden />
           Download Resume (PDF)
         </a>
+        */}
       </div>
 
       <section className="pt-8 mt-8 border-t">

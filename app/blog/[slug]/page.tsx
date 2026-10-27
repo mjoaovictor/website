@@ -68,7 +68,7 @@ export default async function Page({ params }: Props) {
       >
         &larr; Blog
       </Link>
-      <h1 className="mt-6 text-3xl font-semibold tracking-tight">
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-balance">
         {meta.title}
       </h1>
       <p className="mt-3 max-w-prose text-muted-foreground">
@@ -76,7 +76,7 @@ export default async function Page({ params }: Props) {
       </p>
       <time
         dateTime={meta.date.toISOString()}
-        className="block mt-3 font-mono text-sm tabular-nums text-muted-foreground"
+        className="block mt-3 font-mono text-sm text-muted-foreground"
       >
         {meta.date.toLocaleDateString("en-US", {
           year: "numeric",
@@ -85,11 +85,11 @@ export default async function Page({ params }: Props) {
           timeZone: "UTC",
         })}
       </time>
-      <SharePost title={meta.title} url={url} className="mt-3" />
 
       <div className="prose prose-neutral dark:prose-invert mt-8 max-w-none border-t pt-8 *:first:mt-0">
         <Content />
       </div>
+      <SharePost title={meta.title} url={url} className="mt-8" />
     </article>
   )
 }

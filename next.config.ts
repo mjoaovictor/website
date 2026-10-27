@@ -67,6 +67,11 @@ const withMDX = createMDX({
     // Turbopack requires plugins as strings, not functions
     remarkPlugins: ["remark-frontmatter", "remark-gfm", "remark-math"],
     rehypePlugins: [
+      "rehype-slug",
+      [
+        "rehype-autolink-headings",
+        { behavior: "wrap" },
+      ],
       // Left-align display math to share the prose's left edge
       ["rehype-katex", { fleqn: true }],
       [

@@ -123,6 +123,18 @@
   --tw-prose-invert-body: var(--foreground);
 }
 
+/* Anchored headings clear the sticky site header. The wrapping link looks
+   exactly like the heading. */
+.prose :is(h2, h3) {
+  scroll-margin-top: 4rem;
+}
+
+.prose :is(h2, h3) > a {
+  font-weight: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
 /* rehype-pretty-code emits both themes as CSS variables; the .dark class picks one. */
 [data-rehype-pretty-code-figure] code span {
   color: var(--shiki-light);

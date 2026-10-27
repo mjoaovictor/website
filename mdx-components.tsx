@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
+import { cn } from "cn"
 
 // Element classes override the `prose` defaults set on the post wrapper.
 // className is merged so classes added by rehype plugins are kept.
@@ -19,8 +19,16 @@ const components: MDXComponents = {
   h3: ({ className, ...props }) => (
     <h3 className={cn("tracking-tight", className)} {...props} />
   ),
-  a: ({ className, ...props }) => (
-    <a className={cn("underline-offset-6", className)} {...props} />
+  a: ({ className, href, ...props }) => (
+    <a
+      className={cn("underline-offset-6", className)}
+      href={href}
+      {...(href?.startsWith("http") && {
+        target: "_blank",
+        rel: "noopener noreferrer",
+      })}
+      {...props}
+    />
   ),
   blockquote: ({ className, ...props }) => (
     <blockquote

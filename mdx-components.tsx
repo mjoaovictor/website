@@ -14,7 +14,7 @@ import { cn } from "cn"
 // className is merged so classes added by rehype plugins are kept.
 const components: MDXComponents = {
   h2: ({ className, ...props }) => (
-    <h2 className={cn("tracking-tight mt-14", className)} {...props} />
+    <h2 className={cn("tracking-tight mt-14 font-semibold", className)} {...props} />
   ),
   h3: ({ className, ...props }) => (
     <h3 className={cn("tracking-tight", className)} {...props} />

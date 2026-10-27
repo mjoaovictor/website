@@ -2,6 +2,7 @@ import { CHANNEL_RASTERS, type ArfcnRange, type ChannelRaster } from "nr-arfcn"
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -75,6 +76,9 @@ function RasterTable({ rasters }: { rasters: readonly ChannelRaster[] }) {
           </TableRow>
         ))}
       </TableBody>
+      <TableCaption className="text-left">
+        Step is the increment between valid NR-ARFCNs, not a frequency step in kHz.
+      </TableCaption>
     </Table>
   )
 }

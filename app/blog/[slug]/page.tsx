@@ -68,7 +68,7 @@ export default async function Page({ params }: Props) {
       >
         &larr; Blog
       </Link>
-      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-balance">
+      <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance">
         {meta.title}
       </h1>
       <p className="mt-3 max-w-prose text-muted-foreground">
@@ -89,7 +89,7 @@ export default async function Page({ params }: Props) {
       <div className="prose prose-neutral dark:prose-invert mt-8 max-w-none border-t pt-8 *:first:mt-0">
         <Content />
       </div>
-      <SharePost title={meta.title} url={url} className="mt-8" />
+      <SharePost title={meta.title} url={url} className="mt-8 border-t pt-8" />
     </article>
   )
 }

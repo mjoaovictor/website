@@ -1,4 +1,13 @@
 import type { MDXComponents } from "mdx/types"
+import { ChannelRasterTable } from "@/components/channel-raster-table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
 // Element classes override the `prose` defaults set on the post wrapper.
@@ -31,6 +40,14 @@ const components: MDXComponents = {
       {children}
     </div>
   ),
+  ChannelRasterTable,
+  // Markdown tables share the shadcn Table styling used by the tools.
+  table: Table,
+  thead: TableHeader,
+  tbody: TableBody,
+  tr: TableRow,
+  th: TableHead,
+  td: TableCell,
   // Focusable so keyboard users can scroll wide code in browsers that don't do it natively.
   pre: ({ className, ...props }) => (
     <pre

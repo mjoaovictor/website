@@ -4,52 +4,112 @@ description: "How is an NR-ARFCN calculated, and which frequencies does 5G NR al
 date: 2026-10-24
 ---
 
-In 5G NR, the **Frequency Raster** defines the set of permitted center frequencies for RF channels. Unlike LTE's fixed 100 kHz raster, 5G NR utilizes a more flexible grid to accommodate a wider spectrum range.
+Try to place a 5G NR carrier exactly at 3500 MHz. It sounds like the most natural choice in band n78. It is also impossible.
 
-## Global Frequency Raster (NR-ARFCN)
+Convert 3500 MHz to an NR-ARFCN and you get 633333.33. Channel numbers are integers, so 3500 MHz is not a channel. The two closest frequency centers are 3499.995 MHz and 3500.010 MHz.
 
-The **NR-ARFCN** (New Radio Absolute Radio Frequency Channel Number) maps every possible frequency to a unique integer. Per **[3GPP TS 38.104](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3202)**, the relationship between the frequency ($F_{\text{REF}}$) and the NR-ARFCN ($N_{\text{REF}}$) is defined by:
+This post explains why, and gives you the arithmetic to check any frequency yourself.
 
-$$
-F_{\text{REF}} = F_{\text{REF-OFFS}} + \Delta F_{\text{Global}} (N_{\text{REF}} - N_{\text{REF-OFFS}})
-$$
+## A raster is a grid of allowed frequency centers
 
-Or, solving for $N_{\text{REF}}$ (NR-ARFCN):
+To answer the 3500 MHz question, we first need to know what "allowed" means.
 
-$$
-N_{\text{REF}} = N_{\text{REF-OFFS}} + \frac{F_{\text{REF}} - F_{\text{REF-OFFS}}}{\Delta F_{\text{Global}}}
-$$
+A transmitter cannot pick any center frequency it likes. It must pick one from a predefined grid. The spacing of that grid is the **frequency raster**.
 
-### Parameters
+With a 100 kHz raster, 1940.10 MHz, 1940.20 MHz, 1940.30 MHz, and 1940.40 MHz are valid frequency centers. 1940.15 MHz is not.
 
+### LTE
+
+LTE uses a single 100 kHz raster, called the **channel raster**. The synchronization signals and the broadcast channel always sit at the center of the LTE carrier. Find the carrier center and you have found the synchronization signals too.
+
+That one-to-one link is convenient, but it ties two different needs together.
+
+### NR
+
+NR breaks that link and defines two rasters:
+
+- The **channel raster** says where the carrier center can be. It has fine resolution, so operators can place a carrier flexibly inside their spectrum.
+- The **synchronization raster** says where the SS/PBCH Block can be. It has coarse resolution, so a UE scanning a band checks far fewer positions and finishes the scan faster.
+
+In this post we will cover only the channel raster.
+
+## The global raster and the NR-ARFCN
+
+To say "3500 MHz is not a channel", we need a numbering scheme that covers every possible channel.
+
+3GPP defines one **global frequency raster** from 0 to 100 GHz. Every point on it has a number, the NR-ARFCN. Every band's channel raster is built on top of it.
+
+The spacing of the global raster ($\Delta F_\text{Global}$) grows with frequency. If 5 kHz steps were used all the way to 100 GHz, the channel numbers would reach about 20 million. Three sections keep the numbers smaller (Table 1).
+
+<figure>
 | Frequency Range ($F_{\text{REF}}$) | $\Delta F_{\text{Global}}$ | $F_{\text{REF-OFFS}}$ (MHz) | $N_{\text{REF-OFFS}}$ | NR-ARFCN Range |
 | :--- | :--- | :--- | :--- | :--- |
 | 0 — 3 GHz | 5 kHz | 0 | 0 | 0 — 599000 |
 | 3 — 24.25 GHz | 15 kHz | 3000 | 600000 | 600000 — 2016666 |
 | 24.25 — 100 GHz | 60 kHz | 24250.08 | 2016667 | 2016667 — 3279165 |
+<figcaption>Table 1</figcaption>
+</figure>
 
-## Channel Raster
-
-The **Channel Raster** is a band-specific subset of the global grid. While the global grid defines what is *physically possible*, the Channel Raster defines what is *allowed* for a specific operating band (e.g., n78).
-
-For each operational band, 3GPP specifies a $\Delta F_{\text{Raster}}$. This way, if the $\Delta F_{\text{Global}}$ is 5 kHz while the $\Delta F_{\text{Raster}}$ is 100 kHz, the valid NR-ARFCNs will have a step size of 20.
-
-### Raster Validation
-A frequency is considered **valid** for a band if it aligns with the required step size ($\Delta F_{\text{Raster}}$).
+Per 3GPP TS 38.104, the relationship between the frequency and the NR-ARFCN is defined by:
 
 $$
-(N_{\text{REF}} - \text{Start}_{\text{Grid}}) \pmod {\text{Step}_{\text{Band}}} = 0
+F_\text{REF} = F_\text{REF-Offs} + \Delta F_\text{Global}\,(N_\text{REF} - N_\text{REF-Offs})
 $$
 
-### Off-Raster Scenarios
-An **off-raster** frequency exists on the Global Raster ($N_{\text{REF}}$ is an integer) but does not align with the band-specific step. The UE will not typically scan for carriers on these positions during initial cell search.
+Or, solving for N_REF (the NR-ARFCN):
 
-<Callout>
-**Example: Band n1 ($\Delta F_{\text{Raster}}$ = 100 kHz / Step Size = 20)**
+$$
+N_\text{REF} = N_\text{REF-Offs} + \frac{F_\text{REF} - F_\text{REF-Offs}}{\Delta F_\text{Global}}
+$$
 
-*   1920.00 MHz ($N_{\text{REF}} = 384000$): Valid. It aligns with the 100 kHz grid.
-*   1920.05 MHz ($N_{\text{REF}} = 384010$): Off-Raster. Although it is a valid NR-ARFCN, it cannot be used as a center frequency for band n1.
-*   The next valid NR-ARFCN for band n1 is $\text{384000 + 20 = 384020 (1920.10 MHz)}$.
-</Callout>
+Let's do 3500 MHz by hand. It falls in the second section:
+
+N_REF = 600000 + (3500 − 3000) / 0.015 = 600000 + 33333.33 = 633333.33
+
+That is not an integer, so 3500 MHz is not on the global raster. The same arithmetic works for any frequency: pick the section from Table 1 and apply the equation.
+
+Being on the global raster is necessary but not sufficient. Next we check what a specific band allows.
+
+## The band's channel raster
+
+A carrier lives in a band, so we need to know which global raster points that band accepts.
+
+Each band has a **channel raster** with spacing $\Delta F_\text{Raster}$. It uses either every point of the global raster or a subset of it. The step between valid NR-ARFCNs is:
+
+$$
+\text{Step} = \frac{\Delta F_\text{Raster}}{\Delta F_\text{Global}}
+$$
+
+For example, band n1 uses a 100 kHz raster on a 5 kHz global raster, so only every 20th NR-ARFCN is valid. Band n78 offers two rasters on a 15 kHz global raster: 15 kHz (step 1) and 30 kHz (step 2).
+
+Table 2 lists the channel raster, First, Step, and Last NR-ARFCN of each operating band.
+
+<ChannelRasterTable />
+
+
+A frequency is valid for a band and raster when three conditions hold:
+
+1. Its NR-ARFCN is an integer.
+2. The NR-ARFCN lies between First and Last.
+3. (N_REF − First) is a multiple of Step.
+
+We can now validate any carrier. The remaining question is why the bands use such different rasters.
+
+## Why 100 kHz in some bands and 15/30 kHz in others?
+
+Two families of channel raster exist in Frequency Range 1 (FR1):
+
+- **100 kHz raster**. Most bands below 3 GHz use it. LTE also uses 100 kHz, so NR and LTE share the same set of possible frequency centers, which improves coexistence between the two.
+- **Subcarrier-based rasters (15 and 30 kHz)**. Here the raster spacing matches the subcarrier spacing.
+
+## Back to 3500 MHz
+
+We opened this post with a carrier at exactly 3500 MHz. Here is the full answer.
+
+- 3500 MHz is NR-ARFCN 633333.33, so it is not on the global raster and no band can use it.
+- 3499.995 MHz (NR-ARFCN 633333) is valid in n78, but only on the 15 kHz raster.
+- 3500.010 MHz (NR-ARFCN 633334) is valid on both the 15 kHz and 30 kHz rasters of n78.
+
+If you want "3500 MHz" in n78, configure NR-ARFCN 633334 and accept a 10 kHz offset.
 
 Try the conversion yourself in the [5G NR-ARFCN Calculator](/tools/5g-nr-arfcn-calculator).

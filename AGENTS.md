@@ -73,6 +73,7 @@ TypeScript · Next.js · TailwindCSS · shadcn/ui · Vercel
 
 ## Lessons
 <!-- Newest on top. Delete what no longer applies. -->
+- When using `font-mono`, don't add `tabular-nums`: monospace digits are already fixed-width
 - When adding a site accent color, set shadcn's `--accent` instead of creating a new token
 - When styling a non-`Button` element with `buttonVariants`, wrap it in `cn()` so conflicting classes (e.g. `border-transparent` vs `border-border`) merge like they do in `Button`
 - When writing a description for a section index (e.g. `/tools`), describe the section's intended scope, not only what it holds today

@@ -85,7 +85,7 @@ export function ChannelRasterTable() {
     <details className="my-8 not-prose group">
       <summary className="py-3 text-sm cursor-pointer select-none text-muted-foreground hover:text-foreground">
         <span className="group-open:hidden">Show</span>
-        <span className="hidden group-open:inline">Hide</span> Table 2
+        <span className="hidden group-open:inline">Hide</span> Table
       </summary>
       <div className="pt-3">
         <RasterTable rasters={CHANNEL_RASTERS} />

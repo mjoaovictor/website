@@ -1,0 +1,129 @@
+---
+title: "PDU Sessions"
+description: "What replaced the EPS Bearer in 5G, and how does a PDU Session carry user data?"
+date: 2026-10-28
+---
+
+Ask what replaced the EPS Bearer in 5G, and the usual answer is the PDU Session.
+
+But that answer is not quite right.
+
+In 4G, each EPS Bearer provides a specific QoS treatment. A single connection can have multiple EPS Bearers, allowing different types of traffic to receive different QoS treatments.
+
+In 5G, a single PDU Session can contain multiple QoS Flows, each with its own QoS treatment.
+
+So what changed between 4G and 5G? And how does 5G carry traffic with different QoS requirements within the same PDU Session?
+
+Let's start with the EPS Bearer.
+
+## An EPS Bearer carries one QoS treatment in 4G
+
+An EPS Bearer provides user-plane connectivity between the User Equipment (UE) and the Packet Data Network Gateway (P-GW), with a specific QoS treatment.
+
+Each EPS Bearer is associated with a QoS profile that includes a QoS Class Identifier (QCI). All packets belonging to that bearer receive the corresponding QoS treatment.
+
+[3GPP TS 23.401](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=849) defines the EPS Bearer and its role in the Evolved Packet System (EPS).
+
+The connection to the data network is the PDN Connection. It provides connectivity to a data network identified by an Access Point Name (APN), and it can contain multiple EPS Bearers.
+
+For example, consider a PDN Connection with two EPS Bearers:
+- **Default EPS Bearer:** carries traffic with the connection's default QoS treatment.
+- **Dedicated EPS Bearer:** carries traffic that needs a different QoS treatment, such as voice.
+
+Both bearers belong to the same PDN Connection, but each has its own QoS profile.
+
+### Let's count the resources
+
+Each EPS Bearer is associated with a radio bearer between the UE and the eNodeB, and an S1-U tunnel between the eNodeB and the Serving Gateway (S-GW).
+
+In our example, the two EPS Bearers therefore use **two radio bearers** and **two S1-U tunnels**, each carrying traffic with its own QoS treatment.
+
+This illustrates an important aspect of the 4G model: each EPS Bearer combines a specific QoS treatment with corresponding bearer resources in the access network.
+
+## A PDU Session connects the UE to a data network in 5G
+
+A Protocol Data Unit (PDU) Session provides user-plane connectivity between the UE and a data network through the User Plane Function (UPF).
+
+[3GPP TS 23.501](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3144) defines the PDU Session as part of the 5G system architecture.
+
+The data network is identified by a Data Network Name (DNN), which plays a role similar to the APN in 4G.
+
+A UE can establish multiple PDU Sessions, either to the same DNN or to different data networks.
+
+The key difference is that a PDU Session can support one or more QoS Flows.
+
+Each QoS Flow is associated with a QoS profile that includes a 5G QoS Identifier (5QI). All packets belonging to that flow receive the corresponding QoS treatment.
+
+For example, a single PDU Session can carry traffic with two different QoS treatments through two QoS Flows.
+
+The PDU Session provides connectivity. The QoS Flows distinguish the traffic according to its QoS requirements.
+
+PDU Sessions apply to deployments using a 5G Core Network. A Non-Standalone (NSA) deployment connected to a 4G Core Network continues to use EPS Bearers.
+
+## How does 5G carry multiple QoS Flows?
+
+Now we can look at how the network transports the packets.
+
+In 5G, GTP-U tunnels carry user data between the gNodeB and the UPF over the N3 interface.
+
+In the basic case, the gNodeB and the UPF use one GTP-U tunnel per PDU Session.
+
+This means that two QoS Flows within the same PDU Session do not need separate N3 tunnels.
+
+But if the tunnel is shared, how does the network distinguish the traffic?
+
+### The TEID identifies the PDU Session
+
+The GTP-U header contains a Tunnel Endpoint Identifier (TEID).
+
+The TEID identifies the tunnel endpoint associated with the PDU Session, allowing the receiver to determine which session the packet belongs to.
+
+However, the TEID does not identify the specific QoS Flow to which a packet belongs.
+
+That is the job of the QFI.
+
+### The QFI identifies the QoS Flow
+
+The QoS Flow Identifier (QFI) identifies a QoS Flow within a PDU Session.
+
+On the N3 interface, the QFI is always carried in the PDU Session Container within the GTP-U encapsulation. Over the radio interface, the SDAP layer maps QoS Flows to Data Radio Bearers (DRBs). The QFI can also be included in the SDAP header, although its presence there is optional.
+
+The distinction is straightforward:
+
+- **TEID:** identifies the tunnel endpoint, and therefore the PDU Session.
+- **QFI:** identifies the QoS Flow within the PDU Session.
+- **DRB:** carries user data between the UE and the gNodeB over the radio interface.
+
+A PDU Session can use one or more DRBs. Multiple QoS Flows can share a DRB, or they can be mapped to different DRBs according to the radio configuration and QoS requirements.
+
+The number of QoS Flows therefore does not determine the number of N3 tunnels or DRBs.
+
+### Let's follow an uplink packet
+
+Consider a PDU Session containing two QoS Flows.
+
+1. The UE classifies an outgoing packet into a QoS Flow according to its QoS rules.
+2. The UE sends the packet over a DRB mapped to that QoS Flow.
+3. The gNodeB forwards the packet over N3 using GTP-U encapsulation, including the TEID and QFI identifiers.
+4. The UPF identifies the PDU Session using the TEID and the QoS Flow using the QFI.
+5. The UPF forwards the packet toward the data network over N6.
+
+The same N3 tunnel can carry packets belonging to both QoS Flows.
+
+The TEID identifies the PDU Session, while the QFI identifies the QoS Flow.
+
+This is how 5G separates the transport of user data from the differentiation of QoS.
+
+## Back to the two bearers
+
+Now we can answer the original question.
+
+In our 4G example, one connection contains two EPS Bearers. Each bearer has its own QoS treatment, radio bearer and S1-U tunnel.
+
+In the 5G example, one PDU Session contains two QoS Flows. The flows have different QoS treatments but can share a single N3 tunnel. On the radio interface, they can share a DRB or use separate DRBs.
+
+So the PDU Session did not directly replace the EPS Bearer. It is the 5G counterpart of the PDN Connection in terms of data-network connectivity, which is how [3GPP TS 24.501](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3370) maps one to the other when a UE moves between 4G and 5G.
+
+The QoS Flow is the closest counterpart to the EPS Bearer in terms of QoS differentiation. However, the two are not equivalent: an EPS Bearer has its own bearer resources, while a QoS Flow is the finest granularity of QoS differentiation within a PDU Session.
+
+One important distinction: one N3 tunnel per PDU Session is the basic case used in this post, not a universal rule. Features such as Multi-Access PDU Sessions use separate user-plane paths for different accesses.

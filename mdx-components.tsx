@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types"
 import { ChannelRasterTable } from "@/components/channel-raster-table"
+import { QosModelDiagram } from "@/components/qos-model-diagram"
 import {
   Table,
   TableBody,
@@ -49,6 +50,7 @@ const components: MDXComponents = {
     </div>
   ),
   ChannelRasterTable,
+  QosModelDiagram,
   // Markdown tables share the shadcn Table styling used by the tools.
   table: Table,
   thead: TableHeader,

@@ -1,41 +1,39 @@
 ---
-title: "PDU Sessions"
+title: "5G PDU Sessions"
 description: "How does a 5G PDU Session carry multiple QoS Flows?"
 date: 2026-10-28
 ---
 
-In 4G, user data travels in EPS Bearers. Each EPS Bearer connects the UE to the P-GW and has exactly one QoS treatment, identified by its QoS Class Identifier (QCI).
+In 4G, user data travels in EPS Bearers. Each EPS Bearer connects the UE to the PDN Gateway (P-GW) and has exactly one QoS treatment, characterized by its QoS Class Identifier (QCI).
 
-In 5G, user data travels in PDU Sessions, which connect the UE to a data network through the UPF. A single PDU Session can carry several QoS Flows, each with its own QoS treatment, identified by its 5G QoS Identifier (5QI).
+In 5G, user data travels in PDU Sessions, which connect the UE to a data network through the User Plane Function (UPF). A single PDU Session can carry several QoS Flows, each with its own QoS treatment, characterized by a 5G QoS Identifier (5QI).
 
 That is the core change. 4G ties QoS to the EPS Bearer. 5G separates connectivity, provided by the PDU Session, from QoS treatment, provided by the QoS Flow.
 
 ## An EPS Bearer is the unit of QoS in 4G
 
-Each EPS Bearer has its own QoS profile, which determines how its packets are treated. All packets belonging to the same EPS Bearer receive the same QoS treatment.
+Each EPS Bearer has its own QoS profile, and every packet on it gets the same treatment.
 
 [3GPP TS 23.401](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=849) defines the EPS Bearer and its role in the Evolved Packet System (EPS).
 
-EPS Bearers live inside a PDN Connection, the connection to a data network identified by an Access Point Name (APN). A PDN Connection has one default EPS Bearer and zero or more dedicated EPS Bearers.
+EPS Bearers exist within a PDN Connection, which provides connectivity to a data network identified by an Access Point Name (APN). A PDN Connection has one default EPS Bearer and zero or more dedicated EPS Bearers.
 
-- **Default EPS Bearer:** set up with the PDN Connection and kept for its whole lifetime. Carries traffic with the connection's default QoS treatment.
-- **Dedicated EPS Bearer:** added when traffic needs a QoS treatment different from the default, such as voice.
+- **Default EPS Bearer:** set up with the PDN Connection and maintained throughout its lifetime. It carries traffic using the connection's default QoS treatment.
+- **Dedicated EPS Bearer:** added when specific traffic needs a QoS treatment different from the default, such as voice traffic.
 
-### Each EPS Bearer has corresponding transport resources
+### Each EPS Bearer has its own transport resources
 
-3GPP TS 23.401 maps each EPS Bearer to an E-UTRAN Radio Access Bearer (E-RAB). An E-RAB comprises the Data Radio Bearer (DRB) between the UE and the eNodeB and the corresponding S1-U tunnel between the eNodeB and the Serving Gateway (S-GW).
+3GPP TS 23.401 maps each EPS Bearer one-to-one to an E-UTRAN Radio Access Bearer (E-RAB). An E-RAB consists of a Data Radio Bearer (DRB) between the UE and the eNodeB and the corresponding S1-U tunnel between the eNodeB and the Serving Gateway (S-GW).
 
-A PDN Connection with two EPS Bearers therefore uses **two DRBs** and **two S1-U tunnels**.
-
-In 4G, each EPS Bearer has corresponding radio and transport resources. Adding a dedicated EPS Bearer introduces a separate bearer context and its associated resources.
+A PDN Connection with two EPS Bearers therefore uses **two DRBs** and **two S1-U tunnels**. Adding a dedicated EPS Bearer introduces a separate bearer context and its associated resources.
 
 That is one of the key differences from the 5G QoS model.
 
 ## A PDU Session carries one or more QoS Flows
 
-A Protocol Data Unit (PDU) Session provides user-plane connectivity between the UE and a data network through the User Plane Function (UPF).
+A PDU Session provides user-plane connectivity between the UE and a data network through the UPF.
 
-The PDU Session is identified by a PDU Session ID. Its data network is identified by a Data Network Name (DNN), which plays a role similar to the APN in 4G.
+The PDU Session is identified by a PDU Session ID, and its data network by a Data Network Name (DNN), which plays a role similar to the APN in 4G.
 
 A UE can establish several PDU Sessions, to the same DNN or to different ones.
 
@@ -43,45 +41,43 @@ A UE can establish several PDU Sessions, to the same DNN or to different ones.
 
 Inside the PDU Session, traffic is separated into QoS Flows. The QoS Flow is the finest granularity of QoS treatment in a PDU Session.
 
-Each QoS Flow has its own QoS parameters, including a 5QI. Every packet on the flow gets the same treatment.
+Each QoS Flow has its own QoS parameters, including a 5QI, and every packet on the flow gets the same treatment.
 
-The UE assigns each uplink packet to a QoS Flow using its QoS rules. Each QoS rule associates a set of packet filters with a QoS Flow, and the network provides these rules when it establishes or modifies the PDU Session.
+The UE classifies uplink packets into QoS Flows by evaluating them against the packet filters in its QoS rules. Each QoS rule associates a set of packet filters with a QoS Flow. The network signals these rules when it establishes or modifies the PDU Session. With Reflective QoS, the UE can also derive them from downlink traffic.
 
-The PDU Session provides the connectivity. The QoS Flows separate the traffic by QoS.
+The PDU Session provides the connectivity. The QoS Flows separate traffic according to its QoS requirements.
 
-## One GTP-U tunnel on N3 carries every QoS Flow of a PDU Session
+## One GTP-U tunnel carries all QoS Flows of a PDU Session
 
-In 5G, GTP-U tunnels carry user data between the gNodeB and the UPF over the N3 interface.
+Between the gNodeB and the UPF, user data travels in GTP-U tunnels over the N3 interface.
 
-In the basic case, the gNodeB and the UPF use one GTP-U tunnel per PDU Session, not one per QoS Flow.
-
-The tunnel is set up with the PDU Session. All QoS Flows of the session share that tunnel.
+In the basic case, the gNodeB and the UPF use one GTP-U tunnel per PDU Session, not one per QoS Flow. The tunnel is set up with the PDU Session, and all QoS Flows of the session share it.
 
 But if the tunnel is shared, how does the UPF tell the flows apart?
 
 ### The TEID identifies the PDU Session
 
-Every GTP-U header carries the 32-bit Tunnel Endpoint Identifier (TEID) of the receiving endpoint, as defined in [3GPP TS 29.281](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1699).
+Every GTP-U header carries a 32-bit Tunnel Endpoint Identifier (TEID), as defined in [3GPP TS 29.281](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1699).
 
-The receiver uses the TEID to find the PDU Session the packet belongs to.
+Each direction of the tunnel has its own TEID. The UPF or the SMF allocates the uplink TEID, and the gNodeB allocates the downlink TEID.
 
-The TEID says nothing about the QoS Flow. That is the job of the QFI.
+The TEID does not identify the QoS Flow. That is the job of the QFI.
 
 ### The QFI identifies the QoS Flow
 
 The QoS Flow Identifier (QFI) is a 6-bit value that identifies a QoS Flow within a PDU Session.
 
-On the N3 interface, the QFI is always carried in the PDU Session Container within the GTP-U encapsulation. Over the radio interface, the SDAP layer maps QoS Flows to DRBs. The QFI can also be included in the SDAP header, although its presence there is optional.
+On N3, every packet carries the QFI in the PDU Session Container, a GTP-U extension header defined in [3GPP TS 38.415](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3440).
 
-Three identifiers, three jobs:
+Over the radio interface, the SDAP layer maps QoS Flows to DRBs. The SDAP header carries the QFI, but it is configured per DRB and can be absent.
 
-- **TEID:** identifies the tunnel endpoint, and therefore the PDU Session, on N3.
+Three elements, three jobs:
+
+- **TEID:** identifies the GTP-U tunnel endpoint, and therefore the PDU Session, on N3.
 - **QFI:** identifies the QoS Flow within the PDU Session.
 - **DRB:** carries user data between the UE and the gNodeB over the radio interface.
 
-Several QoS Flows can share a DRB, or each can get its own. The gNodeB decides.
-
-In other words, the number of QoS Flows does not set the number of GTP-U tunnels on N3 or the number of DRBs.
+The gNodeB decides how QoS Flows map to DRBs. Several flows can share one DRB, or each can get its own. The number of QoS Flows sets neither the number of GTP-U tunnels nor the number of DRBs.
 
 <QosModelDiagram />
 
@@ -89,12 +85,23 @@ In other words, the number of QoS Flows does not set the number of GTP-U tunnels
 
 Consider the PDU Session in the diagram above, with three QoS Flows.
 
-1. The UE classifies an outgoing packet into a QoS Flow according to its QoS rules.
-2. The UE sends the packet over a DRB mapped to that QoS Flow.
-3. The gNodeB forwards the packet over N3 using GTP-U encapsulation, including the TEID and QFI identifiers.
-4. The UPF identifies the PDU Session using the TEID and the QoS Flow using the QFI.
-5. The UPF forwards the packet toward the data network over N6.
+1. The UE classifies an outgoing packet into a QoS Flow using QoS rules.
+2. The UE sends the packet on the DRB mapped to that QoS Flow.
+3. The gNodeB forwards the packet over N3 on the PDU Session's GTP-U tunnel, with the TEID in the GTP-U header and the QFI in the PDU Session Container.
+4. The UPF identifies the PDU Session from the TEID and the QoS Flow from the QFI.
+5. The UPF decapsulates the packet and forwards it toward the data network over N6.
 
-The same GTP-U tunnel can carry packets belonging to all three QoS Flows.
+Packets from all three QoS Flows share the same GTP-U tunnel.
 
 The TEID separates PDU Sessions. The QFI separates QoS Flows.
+
+### What happens in the downlink?
+
+The same steps run in reverse.
+
+1. The UPF classifies the downlink packet into a QoS Flow.
+2. The UPF forwards the packet over N3 on the PDU Session's GTP-U tunnel, with the TEID in the GTP-U header and the QFI in the PDU Session Container.
+3. The gNodeB identifies the PDU Session from the TEID and the QoS Flow from the QFI.
+4. The gNodeB sends the packet to the UE on the DRB mapped to that QoS Flow.
+
+The same principle applies in both directions: multiple QoS Flows share the PDU Session's GTP-U tunnel, while the QFI distinguishes the individual flows.

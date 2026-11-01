@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true
       },
+      {
+        source: "/blog/pdu-sessions",
+        destination: "/blog/5g-pdu-sessions",
+        permanent: true
+      },
     ]
   },
   async headers() {

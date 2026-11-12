@@ -86,7 +86,7 @@ export default async function Page({ params }: Props) {
         })}
       </time>
 
-      <div className="prose prose-neutral dark:prose-invert mt-8 max-w-none border-t pt-8 *:first:mt-0">
+      <div className="prose prose-neutral dark:prose-invert mt-8 max-w-none border-t pt-8 font-serif prose-headings:font-sans prose-table:font-sans prose-figure:font-sans *:first:mt-0">
         <Content />
       </div>
       <SharePost title={meta.title} url={url} className="mt-8 border-t pt-8" />

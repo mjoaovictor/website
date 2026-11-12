@@ -80,3 +80,4 @@ TypeScript · Next.js · TailwindCSS · shadcn/ui · Vercel
 - When an input becomes invalid, clear the fields and results derived from it instead of keeping the last valid values on screen
 - When a heading or short text has a one-letter word (e.g. "I"), bind it to the next word with `&nbsp;` so it never ends a line alone
 - When asked what causes a behavior, explain the cause without assuming the behavior is unwanted or proposing to remove it
+- When writing a commit message, don't add a `Co-Authored-By` line

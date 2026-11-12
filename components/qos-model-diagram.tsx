@@ -6,7 +6,7 @@ const DATA_NETWORK = { x: 650, width: 90 }
 const RADIO_PIPE = { x: 78, width: 154 }
 const N3_PIPE = { x: 328, width: 164 }
 const NODE_TOP = 32
-const NODE_HEIGHT = 244
+const NODE_HEIGHT = 266
 
 function Node({ x, width, label }: { x: number; width: number; label: string }) {
   return (
@@ -109,11 +109,11 @@ function Interface({ x, label }: { x: number; label: string }) {
         x1={x}
         y1={NODE_TOP + NODE_HEIGHT + 4}
         x2={x}
-        y2={294}
+        y2={316}
         strokeDasharray="3 3"
         className="stroke-muted-foreground/60"
       />
-      <text x={x} y={310} textAnchor="middle" className="fill-muted-foreground">
+      <text x={x} y={332} textAnchor="middle" className="fill-muted-foreground">
         {label}
       </text>
     </>
@@ -126,7 +126,7 @@ export function QosModelDiagram() {
       {/* Scrolls on narrow screens so labels stay readable instead of shrinking */}
       <div className="overflow-x-auto">
         <svg
-          viewBox="0 0 740 316"
+          viewBox="0 0 740 338"
           role="img"
           aria-labelledby="qos-model-title qos-model-desc"
           fontSize={13}
@@ -165,7 +165,7 @@ export function QosModelDiagram() {
             x={UE.x + 28}
             y={66}
             width={UPF.x + UPF.width - 10 - (UE.x + 28)}
-            height={198}
+            height={220}
             rx={6}
             className="fill-background/70 stroke-muted-foreground/60"
           />
@@ -178,15 +178,15 @@ export function QosModelDiagram() {
             PDU Session
           </text>
 
-          <Pipe {...RADIO_PIPE} y={96} height={84} label="Data Radio Bearer 1" />
-          <Pipe {...RADIO_PIPE} y={192} height={60} label="Data Radio Bearer 2" />
-          <Pipe {...N3_PIPE} y={96} height={156} label="GTP-U Tunnel" />
+          <Pipe {...RADIO_PIPE} y={100} height={98} label="Data Radio Bearer 1" />
+          <Pipe {...RADIO_PIPE} y={212} height={62} label="Data Radio Bearer 2" />
+          <Pipe {...N3_PIPE} y={100} height={174} label="GTP-U Tunnel" />
 
-          <QosFlow y={132} label="QoS Flow A (5QI x)" />
-          <QosFlow y={162} label="QoS Flow B (5QI y)" />
-          <QosFlow y={230} label="QoS Flow C (5QI z)" />
+          <QosFlow y={140} label="QoS Flow A (5QI x)" />
+          <QosFlow y={176} label="QoS Flow B (5QI y)" />
+          <QosFlow y={252} label="QoS Flow C (5QI z)" />
 
-          <Interface x={(UE.x + UE.width + GNODEB.x) / 2} label="Radio" />
+          <Interface x={(UE.x + UE.width + GNODEB.x) / 2} label="Uu" />
           <Interface x={(GNODEB.x + GNODEB.width + UPF.x) / 2} label="N3" />
           <Interface x={(UPF.x + UPF.width + DATA_NETWORK.x) / 2} label="N6" />
         </svg>
